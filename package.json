@@ -1,8 +1,8 @@
 {
-  "name": "realhun-frontend",
-  "version": "1.0.0",
-  "description": "Smart Office Frontend",
-  "scripts": {
-    "build": "mkdir -p dist && cp index.html dist/ && cp -r apps dist/apps || true"
-  }
+    "name": "realhun-frontend",
+    "version": "1.0.0",
+    "description": "Smart Office Frontend",
+    "scripts": {
+        "build": "mkdir -p dist build && cp index.html dist/ && cp -r apps dist/apps && cp index.html build/ && cp -r apps build/apps || true"
+    }
 }
