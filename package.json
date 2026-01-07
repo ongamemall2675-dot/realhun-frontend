@@ -3,6 +3,6 @@
     "version": "1.0.0",
     "description": "Smart Office Frontend",
     "scripts": {
-        "build": "mkdir -p dist build && cp index.html dist/ && cp -r apps dist/apps && cp index.html build/ && cp -r apps build/apps || true"
+        "build": "rm -rf dist build public out && mkdir -p dist build public out && cp index.html dist/ && cp -r apps dist/ && cp index.html build/ && cp -r apps build/ && cp index.html public/ && cp -r apps public/ && cp index.html out/ && cp -r apps out/ || true"
     }
 }
