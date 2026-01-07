@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>혜화72 스마트 오피스</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="p-6">
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">🚀 혜화72 스마트 오피스</h1>
+                <p class="text-gray-600 mt-2">오늘도 최고의 중개를 시작해볼까요?</p>
+            </div>
+            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">v1.0 Staff Only</span>
+        </header>
+
+        <h2 class="text-xl font-bold text-gray-700 mb-4"><i class="fas fa-tools mr-2"></i>빠른 실행</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <a href="https://vrew.ai" target="_blank"
+                class="app-card bg-white p-6 rounded-xl shadow-sm border hover:shadow-md flex flex-col items-center justify-center cursor-pointer">
+                <div
+                    class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mb-3 text-indigo-600 text-xl">
+                    <i class="fas fa-video"></i></div>
+                <span class="font-medium">Vrew 실행</span>
+            </a>
+            <a href="https://new.land.naver.com" target="_blank"
+                class="app-card bg-white p-6 rounded-xl shadow-sm border hover:shadow-md flex flex-col items-center justify-center cursor-pointer">
+                <div
+                    class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3 text-green-600 text-xl">
+                    <i class="fas fa-map-marked-alt"></i></div>
+                <span class="font-medium">네이버 부동산</span>
+            </a>
+            <a href="https://disco.re" target="_blank"
+                class="app-card bg-white p-6 rounded-xl shadow-sm border hover:shadow-md flex flex-col items-center justify-center cursor-pointer">
+                <div
+                    class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3 text-blue-600 text-xl">
+                    <i class="fas fa-building"></i></div>
+                <span class="font-medium">디스코</span>
+            </a>
+        </div>
+
+        <h2 class="text-xl font-bold text-gray-700 mb-4"><i class="fas fa-robot mr-2"></i>AI 비서</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <a href="/apps/economy_script.html"
+                class="app-card bg-white rounded-xl shadow-sm border overflow-hidden hover:shadow-md group">
+                <div class="h-2 bg-gradient-to-r from-blue-500 to-cyan-500"></div>
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600"><i
+                                class="fas fa-pen-nib"></i></div>
+                        <i class="fas fa-arrow-right text-gray-300 group-hover:text-blue-500 transition-colors"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-1">경제학 1타 강사</h3>
+                    <p class="text-sm text-gray-500">어려운 경제 뉴스를 유튜버처럼 쉽게 설명해주는 대본 생성기</p>
+                </div>
+            </a>
+
+            <div
+                class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-6 flex flex-col items-center justify-center text-gray-400">
+                <i class="fas fa-plus-circle text-2xl mb-2"></i>
+                <span class="text-sm">건강 정보 앱 (준비중)</span>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
