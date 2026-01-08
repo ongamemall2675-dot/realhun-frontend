@@ -1,41 +1,327 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>혜화72 스마트 오피스</title>
     <link rel="stylesheet" href="/assets/css/common.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Gridstack.js -->
+    <link href="https://cdn.jsdelivr.net/npm/gridstack@10.0.0/dist/gridstack.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/gridstack@10.0.0/dist/gridstack-extra.min.css" rel="stylesheet">
+    <style>
+        .grid-stack {
+            background: transparent;
+        }
+
+        .grid-stack-item-content {
+            background: var(--bg-card);
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .grid-stack-item-content:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .widget-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+            cursor: move;
+        }
+
+        .widget-header h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .widget-header .widget-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .widget-header .widget-actions button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+            transition: all 0.2s;
+        }
+
+        .widget-header .widget-actions button:hover {
+            background: #e2e8f0;
+            color: var(--text-primary);
+        }
+
+        .widget-body {
+            padding: 1rem;
+            height: calc(100% - 52px);
+            overflow-y: auto;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .quick-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 0.5rem;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .quick-link:hover {
+            background: #eef2ff;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .quick-link i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-link span {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .ai-app-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .ai-app-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s;
+        }
+
+        .ai-app-item:hover {
+            background: #eef2ff;
+            transform: translateX(4px);
+        }
+
+        .ai-app-item.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .ai-app-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .ai-app-info h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem;
+        }
+
+        .ai-app-info p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .server-status-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .server-card {
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+
+        .server-card .server-name {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .server-card .server-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .server-card .server-status.online {
+            color: var(--secondary);
+        }
+
+        .server-card .server-status.offline {
+            color: var(--danger);
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            font-size: 0.85rem;
+        }
+
+        .activity-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-time {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .edit-mode .grid-stack-item-content {
+            border: 2px dashed var(--primary);
+        }
+
+        .edit-mode .widget-header {
+            background: #dbeafe;
+        }
+
+        .dashboard-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .dashboard-controls .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .datetime-widget {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .datetime-widget .time {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .datetime-widget .date {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .datetime-widget .greeting {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-top: 0.75rem;
+        }
+    </style>
 </head>
+
 <body>
     <div class="layout">
-        <!-- 사이드바 -->
         <aside class="sidebar">
-            <div class="sidebar-logo">
-                🏢 혜화72
-            </div>
-            
+            <div class="sidebar-logo">🏢 혜화72</div>
             <nav>
                 <ul class="sidebar-nav">
-                    <li><a href="/" class="active"><i class="fas fa-home"></i> 대시보드</a></li>
-                    
+                    <li><a href="/" class="active"><i class="fas fa-th-large"></i> 대시보드</a></li>
                     <div class="nav-section">AI 콘텐츠</div>
                     <li><a href="/apps/economy_script.html"><i class="fas fa-chart-line"></i> 경제학 1타 강사</a></li>
                     <li><a href="/apps/senior_health.html"><i class="fas fa-heartbeat"></i> 시니어 건강</a></li>
                     <li><a href="/apps/story_teller.html"><i class="fas fa-book"></i> 스토리텔러</a></li>
-                    
                     <div class="nav-section">부동산</div>
                     <li><a href="/realestate/"><i class="fas fa-building"></i> 매물 목록</a></li>
                     <li><a href="/realestate/admin.html"><i class="fas fa-edit"></i> 매물 관리</a></li>
-                    
                     <div class="nav-section">관리</div>
                     <li><a href="/admin/n8n-control.html"><i class="fas fa-cogs"></i> n8n 제어</a></li>
                     <li><a href="/admin/rag.html"><i class="fas fa-database"></i> RAG 관리</a></li>
                     <li><a href="/admin/server-status.html"><i class="fas fa-server"></i> 서버 상태</a></li>
                 </ul>
             </nav>
-            
-            <!-- 서버 상태 미니 위젯 -->
             <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1);">
                 <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">서버 상태</div>
                 <div style="display: flex; gap: 1rem; font-size: 0.8rem;">
@@ -45,158 +331,274 @@
             </div>
         </aside>
 
-        <!-- 메인 콘텐츠 -->
         <main class="main-content">
-            <div class="page-header">
-                <h1 class="page-title">👋 안녕하세요, 사장님!</h1>
-                <p class="page-subtitle">오늘도 최고의 중개를 시작해볼까요?</p>
+            <div class="dashboard-controls">
+                <div>
+                    <h1 style="font-size: 1.5rem; font-weight: 700; margin: 0;">👋 안녕하세요, 사장님!</h1>
+                    <p style="color: var(--text-muted); margin: 0.25rem 0 0; font-size: 0.9rem;">오늘도 최고의 중개를 시작해볼까요?</p>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary btn-icon" id="btn-edit" title="위젯 편집">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-secondary btn-icon" id="btn-reset" title="레이아웃 초기화">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button class="btn btn-primary btn-icon" id="btn-save" title="레이아웃 저장" style="display:none;">
+                        <i class="fas fa-save"></i>
+                    </button>
+                </div>
             </div>
 
-            <!-- 빠른 실행 -->
-            <section class="mb-4">
-                <h2 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">
-                    <i class="fas fa-bolt" style="color: var(--accent);"></i> 빠른 실행
-                </h2>
-                <div class="grid grid-4">
-                    <a href="https://vrew.ai" target="_blank" class="app-card">
-                        <div class="app-card-bar" style="background: linear-gradient(90deg, #6366f1, #8b5cf6);"></div>
-                        <div class="app-card-content" style="text-align: center; padding: 1.25rem;">
-                            <div class="app-card-icon" style="background: #eef2ff; color: #6366f1; margin: 0 auto 0.75rem;">
-                                <i class="fas fa-video"></i>
-                            </div>
-                            <h3 style="margin-bottom: 0;">Vrew</h3>
-                        </div>
-                    </a>
-                    <a href="https://new.land.naver.com" target="_blank" class="app-card">
-                        <div class="app-card-bar" style="background: linear-gradient(90deg, #22c55e, #16a34a);"></div>
-                        <div class="app-card-content" style="text-align: center; padding: 1.25rem;">
-                            <div class="app-card-icon" style="background: #dcfce7; color: #22c55e; margin: 0 auto 0.75rem;">
-                                <i class="fas fa-map-marked-alt"></i>
-                            </div>
-                            <h3 style="margin-bottom: 0;">네이버 부동산</h3>
-                        </div>
-                    </a>
-                    <a href="https://disco.re" target="_blank" class="app-card">
-                        <div class="app-card-bar" style="background: linear-gradient(90deg, #3b82f6, #1d4ed8);"></div>
-                        <div class="app-card-content" style="text-align: center; padding: 1.25rem;">
-                            <div class="app-card-icon" style="background: #dbeafe; color: #3b82f6; margin: 0 auto 0.75rem;">
-                                <i class="fas fa-building"></i>
-                            </div>
-                            <h3 style="margin-bottom: 0;">디스코</h3>
-                        </div>
-                    </a>
-                    <a href="https://chatgpt.com" target="_blank" class="app-card">
-                        <div class="app-card-bar" style="background: linear-gradient(90deg, #10b981, #059669);"></div>
-                        <div class="app-card-content" style="text-align: center; padding: 1.25rem;">
-                            <div class="app-card-icon" style="background: #d1fae5; color: #10b981; margin: 0 auto 0.75rem;">
-                                <i class="fas fa-robot"></i>
-                            </div>
-                            <h3 style="margin-bottom: 0;">ChatGPT</h3>
-                        </div>
-                    </a>
-                </div>
-            </section>
-
-            <!-- AI 콘텐츠 제작소 -->
-            <section class="mb-4">
-                <h2 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">
-                    <i class="fas fa-magic" style="color: var(--primary);"></i> AI 콘텐츠 제작소
-                </h2>
-                <div class="grid grid-3">
-                    <a href="/apps/economy_script.html" class="app-card">
-                        <div class="app-card-bar" style="background: linear-gradient(90deg, #3b82f6, #06b6d4);"></div>
-                        <div class="app-card-content">
-                            <div class="app-card-icon" style="background: #dbeafe; color: #3b82f6;">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <h3>경제학 1타 강사</h3>
-                            <p>어려운 경제 뉴스를 쉽게 설명하는 대본 생성</p>
-                            <span class="badge badge-success" style="margin-top: 0.75rem;">
-                                <i class="fas fa-check"></i> 사용 가능
-                            </span>
-                        </div>
-                    </a>
-                    
-                    <div class="app-card-placeholder">
-                        <i class="fas fa-heartbeat" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
-                        <span>시니어 건강 (준비중)</span>
-                    </div>
-                    
-                    <div class="app-card-placeholder">
-                        <i class="fas fa-book" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
-                        <span>스토리텔러 (준비중)</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 부동산 & 관리 -->
-            <section>
-                <div class="grid grid-2">
-                    <!-- 부동산 카드 -->
-                    <div class="card">
-                        <div class="card-header">
-                            <i class="fas fa-home" style="color: var(--secondary);"></i> 부동산 관리
-                        </div>
-                        <div class="card-body">
-                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                                <a href="/realestate/" class="btn btn-secondary" style="justify-content: flex-start;">
-                                    <i class="fas fa-list"></i> 매물 목록 보기
-                                </a>
-                                <a href="/realestate/admin.html" class="btn btn-secondary" style="justify-content: flex-start;">
-                                    <i class="fas fa-plus"></i> 새 매물 등록
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 시스템 카드 -->
-                    <div class="card">
-                        <div class="card-header">
-                            <i class="fas fa-server" style="color: var(--danger);"></i> 시스템 관리
-                        </div>
-                        <div class="card-body">
-                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                                <a href="/admin/n8n-control.html" class="btn btn-secondary" style="justify-content: flex-start;">
-                                    <i class="fas fa-cogs"></i> n8n 워크플로우 관리
-                                </a>
-                                <a href="/admin/server-status.html" class="btn btn-secondary" style="justify-content: flex-start;">
-                                    <i class="fas fa-chart-area"></i> 서버 상태 확인
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <div class="grid-stack" id="dashboard-grid"></div>
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/gridstack@10.0.0/dist/gridstack-all.min.js"></script>
     <script src="/assets/js/api.js"></script>
     <script>
-        // 서버 상태 체크
-        async function checkServers() {
-            const n8nStatus = document.getElementById('status-n8n');
-            const ragStatus = document.getElementById('status-rag');
-            
-            // n8n 체크
-            try {
-                const res = await fetch('https://n8n.hyehwa72.org/healthz', { mode: 'no-cors' });
-                n8nStatus.className = 'status-indicator status-online';
-            } catch {
-                n8nStatus.className = 'status-indicator status-offline';
+        const widgetTemplates = {
+            datetime: {
+                id: 'datetime', title: '시간 & 인사', icon: 'fa-clock', color: '#6366f1',
+                x: 0, y: 0, w: 4, h: 2,
+                content: `<div class="datetime-widget">
+                    <div class="time" id="current-time">--:--</div>
+                    <div class="date" id="current-date">----년 --월 --일</div>
+                    <div class="greeting" id="greeting">좋은 하루 되세요!</div>
+                </div>`
+            },
+            quickLinks: {
+                id: 'quickLinks', title: '빠른 실행', icon: 'fa-bolt', color: '#f59e0b',
+                x: 4, y: 0, w: 4, h: 2,
+                content: `<div class="quick-links">
+                    <a href="https://vrew.ai" target="_blank" class="quick-link">
+                        <i class="fas fa-video" style="color: #6366f1;"></i><span>Vrew</span>
+                    </a>
+                    <a href="https://new.land.naver.com" target="_blank" class="quick-link">
+                        <i class="fas fa-map-marked-alt" style="color: #22c55e;"></i><span>네이버 부동산</span>
+                    </a>
+                    <a href="https://disco.re" target="_blank" class="quick-link">
+                        <i class="fas fa-building" style="color: #3b82f6;"></i><span>디스코</span>
+                    </a>
+                    <a href="https://chatgpt.com" target="_blank" class="quick-link">
+                        <i class="fas fa-robot" style="color: #10b981;"></i><span>ChatGPT</span>
+                    </a>
+                </div>`
+            },
+            serverStatus: {
+                id: 'serverStatus', title: '서버 상태', icon: 'fa-server', color: '#ef4444',
+                x: 8, y: 0, w: 4, h: 2,
+                content: `<div class="server-status-grid">
+                    <div class="server-card">
+                        <div class="server-name">n8n 서버</div>
+                        <div class="server-status online" id="server-n8n"><i class="fas fa-circle"></i> 정상</div>
+                    </div>
+                    <div class="server-card">
+                        <div class="server-name">RAG 서버</div>
+                        <div class="server-status online" id="server-rag"><i class="fas fa-circle"></i> 정상</div>
+                    </div>
+                    <div class="server-card">
+                        <div class="server-name">DB 서버</div>
+                        <div class="server-status online" id="server-db"><i class="fas fa-circle"></i> 정상</div>
+                    </div>
+                    <div class="server-card">
+                        <div class="server-name">웹 서버</div>
+                        <div class="server-status online" id="server-web"><i class="fas fa-circle"></i> 정상</div>
+                    </div>
+                </div>`
+            },
+            aiApps: {
+                id: 'aiApps', title: 'AI 콘텐츠 제작소', icon: 'fa-magic', color: '#3b82f6',
+                x: 0, y: 2, w: 6, h: 3,
+                content: `<div class="ai-app-list">
+                    <a href="/apps/economy_script.html" class="ai-app-item">
+                        <div class="ai-app-icon" style="background: #dbeafe; color: #3b82f6;"><i class="fas fa-chart-line"></i></div>
+                        <div class="ai-app-info"><h4>경제학 1타 강사</h4><p>어려운 경제 뉴스를 쉽게 설명</p></div>
+                        <span class="badge badge-success"><i class="fas fa-check"></i></span>
+                    </a>
+                    <a href="/apps/senior_health.html" class="ai-app-item disabled">
+                        <div class="ai-app-icon" style="background: #fce7f3; color: #ec4899;"><i class="fas fa-heartbeat"></i></div>
+                        <div class="ai-app-info"><h4>시니어 건강</h4><p>60대 건강 정보 콘텐츠</p></div>
+                        <span class="badge">준비중</span>
+                    </a>
+                    <a href="/apps/story_teller.html" class="ai-app-item disabled">
+                        <div class="ai-app-icon" style="background: #fef3c7; color: #f59e0b;"><i class="fas fa-book"></i></div>
+                        <div class="ai-app-info"><h4>스토리텔러</h4><p>탈북민 스토리 롱폼 콘텐츠</p></div>
+                        <span class="badge">준비중</span>
+                    </a>
+                </div>`
+            },
+            realEstate: {
+                id: 'realEstate', title: '부동산 현황', icon: 'fa-home', color: '#10b981',
+                x: 6, y: 2, w: 3, h: 3,
+                content: `<div>
+                    <div class="stat-row"><span class="stat-label">등록 매물</span><span class="stat-value" id="stat-total">-</span></div>
+                    <div class="stat-row"><span class="stat-label">이번 주 신규</span><span class="stat-value" id="stat-new" style="color: var(--secondary);">-</span></div>
+                    <div class="stat-row"><span class="stat-label">이번 달 계약</span><span class="stat-value" id="stat-contract" style="color: var(--primary);">-</span></div>
+                    <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                        <a href="/realestate/" class="btn btn-secondary" style="flex:1; font-size: 0.8rem;"><i class="fas fa-list"></i> 목록</a>
+                        <a href="/realestate/admin.html" class="btn btn-primary" style="flex:1; font-size: 0.8rem;"><i class="fas fa-plus"></i> 등록</a>
+                    </div>
+                </div>`
+            },
+            activity: {
+                id: 'activity', title: '최근 활동', icon: 'fa-history', color: '#8b5cf6',
+                x: 9, y: 2, w: 3, h: 3,
+                content: `<div class="activity-list" id="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: #dbeafe; color: #3b82f6;"><i class="fas fa-file-alt"></i></div>
+                        <div class="activity-content"><div>경제 대본 생성 완료</div><div class="activity-time">5분 전</div></div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: #dcfce7; color: #22c55e;"><i class="fas fa-home"></i></div>
+                        <div class="activity-content"><div>새 매물 등록</div><div class="activity-time">1시간 전</div></div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: #fef3c7; color: #f59e0b;"><i class="fas fa-cog"></i></div>
+                        <div class="activity-content"><div>워크플로우 실행</div><div class="activity-time">2시간 전</div></div>
+                    </div>
+                </div>`
             }
-            
-            // RAG 체크
-            try {
-                const res = await fetch('https://rag.hyehwa72.org/health');
-                ragStatus.className = res.ok ? 'status-indicator status-online' : 'status-indicator status-warning';
-            } catch {
-                ragStatus.className = 'status-indicator status-offline';
+        };
+
+        function createWidgetHTML(widget) {
+            return `<div class="widget-header" data-gs-drag-handle>
+                <h3><i class="fas ${widget.icon}" style="color: ${widget.color};"></i> ${widget.title}</h3>
+                <div class="widget-actions">
+                    <button onclick="refreshWidget('${widget.id}')" title="새로고침"><i class="fas fa-sync-alt"></i></button>
+                </div>
+            </div>
+            <div class="widget-body">${widget.content}</div>`;
+        }
+
+        let grid;
+        let isEditMode = false;
+
+        function initDashboard() {
+            const savedLayout = localStorage.getItem('dashboardLayout');
+            let items;
+            if (savedLayout) {
+                items = JSON.parse(savedLayout);
+            } else {
+                items = Object.values(widgetTemplates).map(w => ({
+                    id: w.id, x: w.x, y: w.y, w: w.w, h: w.h,
+                    content: createWidgetHTML(w)
+                }));
+            }
+
+            grid = GridStack.init({
+                column: 12,
+                cellHeight: 80,
+                margin: 10,
+                float: true,
+                draggable: { handle: '.widget-header' },
+                resizable: { handles: 'se, sw' },
+                disableDrag: true,
+                disableResize: true
+            });
+
+            grid.load(items);
+            grid.on('change', saveLayout);
+        }
+
+        function saveLayout() {
+            const items = grid.save(false);
+            localStorage.setItem('dashboardLayout', JSON.stringify(items));
+        }
+
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const container = document.querySelector('.main-content');
+            const editBtn = document.getElementById('btn-edit');
+            const saveBtn = document.getElementById('btn-save');
+
+            if (isEditMode) {
+                container.classList.add('edit-mode');
+                grid.enableMove(true);
+                grid.enableResize(true);
+                editBtn.innerHTML = '<i class="fas fa-times"></i>';
+                editBtn.classList.replace('btn-secondary', 'btn-danger');
+                saveBtn.style.display = 'flex';
+            } else {
+                container.classList.remove('edit-mode');
+                grid.enableMove(false);
+                grid.enableResize(false);
+                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                editBtn.classList.replace('btn-danger', 'btn-secondary');
+                saveBtn.style.display = 'none';
+                saveLayout();
             }
         }
-        
-        // 페이지 로드 시 서버 상태 체크
-        checkServers();
-        setInterval(checkServers, 60000); // 1분마다 갱신
+
+        function resetLayout() {
+            if (confirm('레이아웃을 초기 상태로 되돌리시겠습니까?')) {
+                localStorage.removeItem('dashboardLayout');
+                location.reload();
+            }
+        }
+
+        function refreshWidget(widgetId) { console.log('Refreshing:', widgetId); }
+
+        function updateDateTime() {
+            const now = new Date();
+            const timeEl = document.getElementById('current-time');
+            const dateEl = document.getElementById('current-date');
+            const greetingEl = document.getElementById('greeting');
+
+            if (timeEl) timeEl.textContent = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+            if (dateEl) dateEl.textContent = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+            if (greetingEl) {
+                const hour = now.getHours();
+                let greeting = hour < 6 ? '늦은 밤까지 수고하세요! 🌙' : hour < 12 ? '좋은 아침이에요! ☀️' : hour < 18 ? '오후도 화이팅! 💪' : '저녁 시간이에요! 🌆';
+                greetingEl.textContent = greeting;
+            }
+        }
+
+        async function checkServers() {
+            const servers = [
+                { id: 'status-n8n', elId: 'server-n8n', url: 'https://n8n.hyehwa72.org/healthz', cors: true },
+                { id: 'status-rag', elId: 'server-rag', url: 'https://rag.hyehwa72.org/health', cors: false }
+            ];
+            for (const server of servers) {
+                try {
+                    const opts = server.cors ? { mode: 'no-cors' } : {};
+                    await fetch(server.url, opts);
+                    updateServerStatus(server.id, true);
+                    updateServerStatus(server.elId, true);
+                } catch {
+                    updateServerStatus(server.id, false);
+                    updateServerStatus(server.elId, false);
+                }
+            }
+        }
+
+        function updateServerStatus(elId, isOnline) {
+            const el = document.getElementById(elId);
+            if (!el) return;
+            if (el.classList.contains('status-indicator')) {
+                el.className = `status-indicator ${isOnline ? 'status-online' : 'status-offline'}`;
+            } else {
+                el.className = `server-status ${isOnline ? 'online' : 'offline'}`;
+                el.innerHTML = `<i class="fas fa-circle"></i> ${isOnline ? '정상' : '오류'}`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initDashboard();
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            checkServers();
+            setInterval(checkServers, 60000);
+
+            document.getElementById('btn-edit').addEventListener('click', toggleEditMode);
+            document.getElementById('btn-reset').addEventListener('click', resetLayout);
+            document.getElementById('btn-save').addEventListener('click', () => {
+                saveLayout();
+                toggleEditMode();
+                alert('레이아웃이 저장되었습니다!');
+            });
+        });
     </script>
 </body>
+
 </html>
