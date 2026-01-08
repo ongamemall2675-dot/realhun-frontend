@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>혜화72 공인중개사 - 종로구 혜화동 부동산</title>
+    
+    <!-- SEO -->
+    <meta name="description" content="서울 종로구 혜화동 부동산, 대학로 원룸, 투룸, 오피스텔 전월세 매물 정보">
+    <meta name="keywords" content="혜화동 부동산, 대학로 원룸, 종로구 전세, 혜화 월세, 공인중개사">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="혜화72 공인중개사">
+    <meta property="og:description" content="종로구 혜화동 부동산 매물 정보">
+    <meta property="og:type" content="website">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        [x-cloak] { display: none !important; }
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        
+        /* 카드 호버 효과 */
+        .property-card {
+            transition: all 0.3s ease;
+        }
+        .property-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        /* 거래 유형 배지 */
+        .badge-매매 { @apply bg-blue-100 text-blue-800; }
+        .badge-전세 { @apply bg-green-100 text-green-800; }
+        .badge-월세 { @apply bg-orange-100 text-orange-800; }
+        
+        /* 히어로 그라데이션 */
+        .hero-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <div x-data="publicPage()" x-init="init()">
+        
+        <!-- 헤더 -->
+        <header class="bg-white shadow-sm sticky top-0 z-50">
+            <div class="max-w-6xl mx-auto px-4">
+                <div class="flex items-center justify-between h-16">
+                    <!-- 로고 -->
+                    <a href="index.html" class="flex items-center space-x-2">
+                        <span class="text-3xl">🏠</span>
+                        <div>
+                            <span class="font-bold text-xl text-gray-900">혜화72</span>
+                            <span class="text-xs text-gray-500 block">공인중개사사무소</span>
+                        </div>
+                    </a>
+                    
+                    <!-- 연락처 -->
+                    <div class="flex items-center space-x-4">
+                        <a href="tel:02-1234-5678" class="hidden md:flex items-center space-x-2 text-gray-600 hover:text-blue-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                            </svg>
+                            <span class="font-medium">02-1234-5678</span>
+                        </a>
+                        <a href="#contact" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                            문의하기
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 히어로 섹션 -->
+        <section class="hero-gradient text-white py-16 md:py-24">
+            <div class="max-w-6xl mx-auto px-4 text-center">
+                <h1 class="text-3xl md:text-5xl font-bold mb-4">
+                    종로구 혜화동 부동산<br class="md:hidden"> 전문
+                </h1>
+                <p class="text-lg md:text-xl text-white/80 mb-8">
+                    대학로, 혜화역 인근 원룸·투룸·오피스텔<br>
+                    전월세·매매 매물을 한눈에
+                </p>
+                
+                <!-- 퀵 검색 -->
+                <div class="bg-white rounded-2xl p-4 md:p-6 max-w-3xl mx-auto shadow-2xl">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <select x-model="filters.transactionType" @change="fetchProperties()"
+                                class="border rounded-lg px-3 py-3 text-gray-700 focus:ring-2 focus:ring-blue-500">
+                            <option value="">전체 거래</option>
+                            <option value="매매">매매</option>
+                            <option value="전세">전세</option>
+                            <option value="월세">월세</option>
+                        </select>
+                        
+                        <select x-model="filters.propertyType" @change="fetchProperties()"
+                                class="border rounded-lg px-3 py-3 text-gray-700 focus:ring-2 focus:ring-blue-500">
+                            <option value="">전체 유형</option>
+                            <option value="원룸">원룸</option>
+                            <option value="빌라">빌라/투룸</option>
+                            <option value="오피스텔">오피스텔</option>
+                            <option value="아파트">아파트</option>
+                        </select>
+                        
+                        <select x-model="filters.maxDeposit" @change="fetchProperties()"
+                                class="border rounded-lg px-3 py-3 text-gray-700 focus:ring-2 focus:ring-blue-500">
+                            <option value="">보증금 무관</option>
+                            <option value="500">500만 이하</option>
+                            <option value="1000">1000만 이하</option>
+                            <option value="3000">3000만 이하</option>
+                            <option value="5000">5000만 이하</option>
+                            <option value="10000">1억 이하</option>
+                        </select>
+                        
+                        <button @click="fetchProperties()" 
+                                class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-3 font-medium transition flex items-center justify-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                            <span>검색</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 매물 목록 -->
+        <section class="py-12 md:py-16">
+            <div class="max-w-6xl mx-auto px-4">
+                
+                <!-- 섹션 헤더 -->
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">추천 매물</h2>
+                        <p class="text-gray-500">총 <span class="font-medium text-blue-600" x-text="pagination.total"></span>개의 매물</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button @click="viewMode = 'grid'" 
+                                :class="viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-400'"
+                                class="p-2 rounded-lg transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                            </svg>
+                        </button>
+                        <button @click="viewMode = 'list'" 
+                                :class="viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-400'"
+                                class="p-2 rounded-lg transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 로딩 -->
+                <div x-show="loading" class="flex justify-center py-12">
+                    <svg class="animate-spin h-10 w-10 text-blue-500" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                </div>
+                
+                <!-- 매물 없음 -->
+                <div x-show="!loading && properties.length === 0" class="text-center py-16">
+                    <span class="text-6xl mb-4 block">🏠</span>
+                    <h3 class="text-xl font-medium text-gray-900 mb-2">검색 결과가 없습니다</h3>
+                    <p class="text-gray-500">다른 조건으로 검색해 보세요</p>
+                </div>
+                
+                <!-- 그리드 뷰 -->
+                <div x-show="!loading && viewMode === 'grid'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <template x-for="property in properties" :key="property.id">
+                        <div class="property-card bg-white rounded-2xl shadow-md overflow-hidden cursor-pointer"
+                             @click="openDetail(property)">
+                            
+                            <!-- 이미지 -->
+                            <div class="relative h-48 bg-gradient-to-br from-gray-200 to-gray-300">
+                                <template x-if="property.photos && property.photos.length > 0">
+                                    <img :src="property.photos[0].url" 
+                                         :alt="property.property_type"
+                                         class="w-full h-full object-cover">
+                                </template>
+                                <template x-if="!property.photos || property.photos.length === 0">
+                                    <div class="w-full h-full flex items-center justify-center">
+                                        <span class="text-5xl">🏠</span>
+                                    </div>
+                                </template>
+                                
+                                <!-- 거래유형 배지 -->
+                                <div class="absolute top-3 left-3">
+                                    <span class="px-3 py-1 rounded-full text-sm font-medium"
+                                          :class="'badge-' + property.transaction_type"
+                                          x-text="property.transaction_type"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- 정보 -->
+                            <div class="p-4">
+                                <!-- 가격 -->
+                                <div class="mb-2">
+                                    <template x-if="property.transaction_type === '매매'">
+                                        <p class="text-xl font-bold text-blue-600" x-text="formatPrice(property.sale_price) + '만원'"></p>
+                                    </template>
+                                    <template x-if="property.transaction_type === '전세'">
+                                        <p class="text-xl font-bold text-green-600" x-text="'전세 ' + formatPrice(property.deposit) + '만원'"></p>
+                                    </template>
+                                    <template x-if="property.transaction_type === '월세'">
+                                        <p class="text-xl font-bold text-orange-600" x-text="formatPrice(property.deposit) + ' / ' + formatPrice(property.monthly_rent) + '만원'"></p>
+                                    </template>
+                                </div>
+                                
+                                <!-- 물건 유형 & 면적 -->
+                                <p class="text-gray-900 font-medium mb-1">
+                                    <span x-text="property.property_type"></span>
+                                    <span class="text-gray-400 mx-1">·</span>
+                                    <span x-text="property.area_exclusive ? property.area_exclusive + '㎡' : '-'"></span>
+                                </p>
+                                
+                                <!-- 주소 -->
+                                <p class="text-gray-500 text-sm truncate" 
+                                   x-text="property.building_name || property.address_road || '혜화동'">
+                                </p>
+                                
+                                <!-- 태그 -->
+                                <div class="flex items-center gap-2 mt-3 text-xs text-gray-500">
+                                    <span x-show="property.floor_current" x-text="property.floor_current + '층'"></span>
+                                    <span x-show="property.direction" x-text="property.direction"></span>
+                                    <span x-show="property.room_count" x-text="'방 ' + property.room_count + '개'"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- 리스트 뷰 -->
+                <div x-show="!loading && viewMode === 'list'" class="space-y-4">
+                    <template x-for="property in properties" :key="property.id">
+                        <div class="property-card bg-white rounded-xl shadow-md p-4 flex gap-4 cursor-pointer"
+                             @click="openDetail(property)">
+                            
+                            <!-- 썸네일 -->
+                            <div class="w-32 h-24 bg-gray-200 rounded-lg flex-shrink-0 flex items-center justify-center">
+                                <template x-if="property.photos && property.photos.length > 0">
+                                    <img :src="property.photos[0].url" 
+                                         class="w-full h-full object-cover rounded-lg">
+                                </template>
+                                <template x-if="!property.photos || property.photos.length === 0">
+                                    <span class="text-3xl">🏠</span>
+                                </template>
+                            </div>
+                            
+                            <!-- 정보 -->
+                            <div class="flex-1">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <span class="px-2 py-0.5 rounded text-xs font-medium"
+                                              :class="'badge-' + property.transaction_type"
+                                              x-text="property.transaction_type"></span>
+                                        <span class="text-gray-400 mx-1">·</span>
+                                        <span class="text-sm text-gray-600" x-text="property.property_type"></span>
+                                    </div>
+                                </div>
+                                
+                                <p class="text-lg font-bold mt-1">
+                                    <template x-if="property.transaction_type === '매매'">
+                                        <span class="text-blue-600" x-text="formatPrice(property.sale_price) + '만원'"></span>
+                                    </template>
+                                    <template x-if="property.transaction_type === '전세'">
+                                        <span class="text-green-600" x-text="formatPrice(property.deposit) + '만원'"></span>
+                                    </template>
+                                    <template x-if="property.transaction_type === '월세'">
+                                        <span class="text-orange-600" x-text="formatPrice(property.deposit) + '/' + formatPrice(property.monthly_rent)"></span>
+                                    </template>
+                                </p>
+                                
+                                <p class="text-gray-500 text-sm mt-1" x-text="property.building_name || property.address_road || '혜화동'"></p>
+                                
+                                <div class="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                                    <span x-text="(property.area_exclusive || '-') + '㎡'"></span>
+                                    <span x-text="(property.floor_current || '-') + '층'"></span>
+                                    <span x-text="property.direction || ''"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- 더보기 버튼 -->
+                <div x-show="!loading && properties.length > 0 && properties.length < pagination.total" 
+                     class="text-center mt-10">
+                    <button @click="loadMore()" 
+                            class="px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-full font-medium hover:bg-blue-50 transition">
+                        더 많은 매물 보기
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 연락처 섹션 -->
+        <section id="contact" class="bg-gray-900 text-white py-16">
+            <div class="max-w-6xl mx-auto px-4">
+                <div class="grid md:grid-cols-2 gap-12">
+                    <!-- 정보 -->
+                    <div>
+                        <h2 class="text-3xl font-bold mb-6">대학로혜화72<br>공인중개사사무소</h2>
+                        
+                        <div class="space-y-4 text-gray-300">
+                            <div class="flex items-start space-x-3">
+                                <svg class="w-6 h-6 text-blue-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                <div>
+                                    <p class="font-medium text-white">주소</p>
+                                    <p>서울특별시 종로구 대학로 72</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-3">
+                                <svg class="w-6 h-6 text-blue-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                </svg>
+                                <div>
+                                    <p class="font-medium text-white">전화</p>
+                                    <p>02-1234-5678</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-3">
+                                <svg class="w-6 h-6 text-blue-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <div>
+                                    <p class="font-medium text-white">영업시간</p>
+                                    <p>평일 09:00 - 18:00</p>
+                                    <p>토요일 10:00 - 15:00 (일요일 휴무)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 문의 폼 -->
+                    <div class="bg-gray-800 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold mb-4">빠른 문의</h3>
+                        <form @submit.prevent="submitInquiry()" class="space-y-4">
+                            <input type="text" x-model="inquiry.name" required
+                                   placeholder="이름"
+                                   class="w-full bg-gray-700 border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500">
+                            <input type="tel" x-model="inquiry.phone" required
+                                   placeholder="연락처"
+                                   class="w-full bg-gray-700 border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500">
+                            <textarea x-model="inquiry.message" rows="3"
+                                      placeholder="문의 내용"
+                                      class="w-full bg-gray-700 border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500"></textarea>
+                            <button type="submit" 
+                                    class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition">
+                                문의하기
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 푸터 -->
+        <footer class="bg-gray-950 text-gray-400 py-8">
+            <div class="max-w-6xl mx-auto px-4 text-center">
+                <p class="text-sm">
+                    © 2026 대학로혜화72공인중개사사무소. All rights reserved.<br>
+                    대표: 김훈 | 등록번호: 제2024-종로-12345호
+                </p>
+            </div>
+        </footer>
+        
+        <!-- 매물 상세 모달 -->
+        <div x-show="showDetail" 
+             x-cloak
+             class="fixed inset-0 z-50 overflow-y-auto"
+             @keydown.escape.window="showDetail = false">
+            <div class="flex items-center justify-center min-h-screen px-4">
+                <div class="fixed inset-0 bg-black bg-opacity-50" @click="showDetail = false"></div>
+                
+                <div x-show="showDetail"
+                     x-transition
+                     class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                    
+                    <!-- 닫기 버튼 -->
+                    <button @click="showDetail = false" 
+                            class="absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                    
+                    <!-- 이미지 -->
+                    <div class="h-64 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                        <span class="text-7xl">🏠</span>
+                    </div>
+                    
+                    <!-- 내용 -->
+                    <div class="p-6" x-show="selectedProperty">
+                        <!-- 거래유형 & 가격 -->
+                        <div class="mb-4">
+                            <span class="px-3 py-1 rounded-full text-sm font-medium"
+                                  :class="'badge-' + selectedProperty?.transaction_type"
+                                  x-text="selectedProperty?.transaction_type"></span>
+                            
+                            <div class="mt-2">
+                                <template x-if="selectedProperty?.transaction_type === '매매'">
+                                    <p class="text-3xl font-bold text-blue-600" x-text="formatPrice(selectedProperty?.sale_price) + '만원'"></p>
+                                </template>
+                                <template x-if="selectedProperty?.transaction_type === '전세'">
+                                    <p class="text-3xl font-bold text-green-600" x-text="'전세 ' + formatPrice(selectedProperty?.deposit) + '만원'"></p>
+                                </template>
+                                <template x-if="selectedProperty?.transaction_type === '월세'">
+                                    <div>
+                                        <p class="text-3xl font-bold text-orange-600" x-text="'보증금 ' + formatPrice(selectedProperty?.deposit) + ' / 월세 ' + formatPrice(selectedProperty?.monthly_rent) + '만원'"></p>
+                                        <p class="text-gray-500 mt-1" x-show="selectedProperty?.maintenance_fee">
+                                            관리비 <span x-text="formatPrice(selectedProperty?.maintenance_fee)"></span>만원
+                                        </p>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                        
+                        <!-- 기본 정보 -->
+                        <div class="border-t border-b py-4 mb-4">
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span class="text-gray-500">물건 유형</span>
+                                    <p class="font-medium" x-text="selectedProperty?.property_type"></p>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">면적</span>
+                                    <p class="font-medium" x-text="(selectedProperty?.area_exclusive || '-') + '㎡'"></p>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">층수</span>
+                                    <p class="font-medium" x-text="(selectedProperty?.floor_current || '-') + '층'"></p>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">방향</span>
+                                    <p class="font-medium" x-text="selectedProperty?.direction || '-'"></p>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">방/욕실</span>
+                                    <p class="font-medium" x-text="(selectedProperty?.room_count || '-') + '개 / ' + (selectedProperty?.bathroom_count || '-') + '개'"></p>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">입주</span>
+                                    <p class="font-medium" x-text="selectedProperty?.move_in_type || '협의'"></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 설명 -->
+                        <div x-show="selectedProperty?.description" class="mb-6">
+                            <h4 class="font-medium text-gray-900 mb-2">상세 설명</h4>
+                            <p class="text-gray-600 whitespace-pre-line" x-text="selectedProperty?.description"></p>
+                        </div>
+                        
+                        <!-- CTA -->
+                        <div class="flex gap-3">
+                            <a href="tel:02-1234-5678" 
+                               class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium text-center transition">
+                                📞 전화 문의
+                            </a>
+                            <button @click="showDetail = false; document.getElementById('contact').scrollIntoView({behavior: 'smooth'})"
+                                    class="flex-1 border-2 border-blue-600 text-blue-600 py-3 rounded-xl font-medium transition hover:bg-blue-50">
+                                ✉️ 온라인 문의
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <script>
+        function publicPage() {
+            return {
+                API_BASE: 'http://64.23.232.179:8000',
+                
+                loading: true,
+                properties: [],
+                viewMode: 'grid',
+                
+                filters: {
+                    transactionType: '',
+                    propertyType: '',
+                    maxDeposit: ''
+                },
+                
+                pagination: {
+                    page: 1,
+                    limit: 12,
+                    total: 0
+                },
+                
+                // 상세 모달
+                showDetail: false,
+                selectedProperty: null,
+                
+                // 문의 폼
+                inquiry: {
+                    name: '',
+                    phone: '',
+                    message: ''
+                },
+                
+                async init() {
+                    await this.fetchProperties();
+                },
+                
+                async fetchProperties() {
+                    this.loading = true;
+                    try {
+                        const params = new URLSearchParams({
+                            page: this.pagination.page,
+                            limit: this.pagination.limit
+                        });
+                        
+                        if (this.filters.transactionType) params.append('transaction_type', this.filters.transactionType);
+                        if (this.filters.propertyType) params.append('property_type', this.filters.propertyType);
+                        if (this.filters.maxDeposit) params.append('max_deposit', this.filters.maxDeposit);
+                        
+                        const response = await fetch(`${this.API_BASE}/api/properties/public?${params}`);
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            this.properties = result.data;
+                            this.pagination.total = result.total;
+                        }
+                    } catch (error) {
+                        console.error('매물 조회 실패:', error);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                
+                async loadMore() {
+                    this.pagination.page++;
+                    
+                    try {
+                        const params = new URLSearchParams({
+                            page: this.pagination.page,
+                            limit: this.pagination.limit
+                        });
+                        
+                        if (this.filters.transactionType) params.append('transaction_type', this.filters.transactionType);
+                        if (this.filters.propertyType) params.append('property_type', this.filters.propertyType);
+                        
+                        const response = await fetch(`${this.API_BASE}/api/properties/public?${params}`);
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            this.properties = [...this.properties, ...result.data];
+                        }
+                    } catch (error) {
+                        console.error('추가 로드 실패:', error);
+                    }
+                },
+                
+                openDetail(property) {
+                    this.selectedProperty = property;
+                    this.showDetail = true;
+                },
+                
+                submitInquiry() {
+                    alert(`문의가 접수되었습니다.\n담당자가 곧 연락드리겠습니다.`);
+                    this.inquiry = { name: '', phone: '', message: '' };
+                },
+                
+                formatPrice(price) {
+                    if (!price) return '-';
+                    if (price >= 10000) {
+                        const uk = Math.floor(price / 10000);
+                        const man = price % 10000;
+                        return man > 0 ? `${uk}억 ${man.toLocaleString()}` : `${uk}억`;
+                    }
+                    return price.toLocaleString();
+                }
+            };
+        }
+    </script>
+</body>
+</html>
