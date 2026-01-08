@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매물 상세 | 혜화72 부동산</title>
+    
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard Variable', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe',
+                            300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6',
+                            600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Swiper -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    
+    <style>
+        .price-highlight { background: linear-gradient(135deg, #eff6ff, #dbeafe); }
+        .info-card { transition: all 0.3s; }
+        .info-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+        .option-badge { background: linear-gradient(135deg, #f8fafc, #f1f5f9); }
+        .sticky-cta { box-shadow: 0 -4px 20px rgba(0,0,0,0.1); }
+        .gallery-swiper .swiper-pagination-bullet-active { background: #2563eb; }
+        .thumb-swiper .swiper-slide { opacity: 0.5; cursor: pointer; }
+        .thumb-swiper .swiper-slide-thumb-active { opacity: 1; border: 2px solid #2563eb; }
+    </style>
+</head>
+<body class="font-sans bg-slate-50 text-slate-800" x-data="propertyDetail()">
+    
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-4">
+                    <button @click="goBack()" class="p-2 hover:bg-slate-100 rounded-lg">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </button>
+                    <a href="index.html" class="flex items-center gap-2">
+                        <span class="text-xl">🏠</span>
+                        <span class="text-lg font-bold text-primary-700">혜화72</span>
+                    </a>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button @click="toggleFavorite()" class="p-2 hover:bg-slate-100 rounded-lg"
+                            :class="isFavorite ? 'text-red-500' : 'text-slate-400'">
+                        <i data-lucide="heart" class="w-5 h-5" :class="isFavorite ? 'fill-current' : ''"></i>
+                    </button>
+                    <button @click="shareProperty()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600">
+                        <i data-lucide="share-2" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="pb-24 lg:pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            
+            <!-- Loading -->
+            <div x-show="loading" class="space-y-6">
+                <div class="bg-white rounded-2xl overflow-hidden">
+                    <div class="h-96 bg-slate-200 animate-pulse"></div>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div x-show="!loading && property" class="grid lg:grid-cols-3 gap-8">
+                
+                <!-- Left Column -->
+                <div class="lg:col-span-2 space-y-6">
+                    
+                    <!-- Gallery -->
+                    <div class="bg-white rounded-2xl overflow-hidden shadow-sm relative">
+                        <div class="swiper gallery-swiper">
+                            <div class="swiper-wrapper">
+                                <template x-if="property.photos && property.photos.length > 0">
+                                    <template x-for="(photo, index) in property.photos" :key="index">
+                                        <div class="swiper-slide">
+                                            <img :src="photo.url" :alt="'사진 ' + (index+1)"
+                                                 class="w-full h-72 sm:h-96 object-cover cursor-zoom-in"
+                                                 @click="openLightbox(index)">
+                                        </div>
+                                    </template>
+                                </template>
+                                <template x-if="!property.photos || property.photos.length === 0">
+                                    <div class="swiper-slide">
+                                        <div class="w-full h-72 sm:h-96 bg-slate-100 flex items-center justify-center">
+                                            <div class="text-center text-slate-400">
+                                                <i data-lucide="image" class="w-16 h-16 mx-auto mb-2"></i>
+                                                <p>등록된 사진이 없습니다</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                            <div class="swiper-pagination"></div>
+                            <div class="swiper-button-next"></div>
+                            <div class="swiper-button-prev"></div>
+                        </div>
+                        
+                        <div class="absolute top-4 right-4 px-3 py-1.5 bg-black/60 text-white text-sm rounded-full flex items-center gap-1">
+                            <i data-lucide="camera" class="w-4 h-4"></i>
+                            <span x-text="(property.photos?.length || 0) + '장'"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Price Card -->
+                    <div class="price-highlight rounded-2xl p-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="px-3 py-1 bg-primary-600 text-white text-sm font-medium rounded-full"
+                                  x-text="property.transaction_type"></span>
+                            <span class="px-3 py-1 bg-slate-100 text-slate-700 text-sm font-medium rounded-full"
+                                  x-text="property.property_type"></span>
+                        </div>
+                        <div class="flex flex-wrap items-baseline gap-4 mb-4">
+                            <span class="text-4xl font-bold text-primary-700" x-text="formatPrice()"></span>
+                            <span x-show="property.maintenance_fee" class="text-slate-500">
+                                관리비 <span x-text="property.maintenance_fee"></span>만원
+                            </span>
+                        </div>
+                        <p class="text-slate-600 flex items-center gap-2">
+                            <i data-lucide="map-pin" class="w-4 h-4"></i>
+                            <span x-text="property.address_road || property.address_jibun || '주소 정보 없음'"></span>
+                        </p>
+                    </div>
+                    
+                    <!-- Info Cards -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div class="info-card bg-white rounded-xl p-4 text-center shadow-sm">
+                            <i data-lucide="maximize" class="w-6 h-6 text-primary-500 mx-auto mb-2"></i>
+                            <div class="text-xs text-slate-500 mb-1">전용면적</div>
+                            <div class="font-bold text-lg" x-text="(property.area_exclusive || '-') + '㎡'"></div>
+                        </div>
+                        <div class="info-card bg-white rounded-xl p-4 text-center shadow-sm">
+                            <i data-lucide="building" class="w-6 h-6 text-primary-500 mx-auto mb-2"></i>
+                            <div class="text-xs text-slate-500 mb-1">층수</div>
+                            <div class="font-bold text-lg" x-text="(property.floor_current || '-') + '/' + (property.floor_total || '-') + '층'"></div>
+                        </div>
+                        <div class="info-card bg-white rounded-xl p-4 text-center shadow-sm">
+                            <i data-lucide="compass" class="w-6 h-6 text-primary-500 mx-auto mb-2"></i>
+                            <div class="text-xs text-slate-500 mb-1">방향</div>
+                            <div class="font-bold text-lg" x-text="property.direction || '-'"></div>
+                        </div>
+                        <div class="info-card bg-white rounded-xl p-4 text-center shadow-sm">
+                            <i data-lucide="door-open" class="w-6 h-6 text-primary-500 mx-auto mb-2"></i>
+                            <div class="text-xs text-slate-500 mb-1">방/욕실</div>
+                            <div class="font-bold text-lg" x-text="(property.room_count || '-') + '/' + (property.bathroom_count || '-')"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tabs -->
+                    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                        <div class="flex border-b">
+                            <button @click="activeTab = 'info'" class="flex-1 py-4 text-center font-medium"
+                                    :class="activeTab === 'info' ? 'text-primary-600 border-b-2 border-primary-600' : 'text-slate-500'">
+                                매물정보
+                            </button>
+                            <button @click="activeTab = 'options'" class="flex-1 py-4 text-center font-medium"
+                                    :class="activeTab === 'options' ? 'text-primary-600 border-b-2 border-primary-600' : 'text-slate-500'">
+                                옵션
+                            </button>
+                            <button @click="activeTab = 'location'" class="flex-1 py-4 text-center font-medium"
+                                    :class="activeTab === 'location' ? 'text-primary-600 border-b-2 border-primary-600' : 'text-slate-500'">
+                                위치
+                            </button>
+                        </div>
+                        
+                        <!-- Tab: Info -->
+                        <div x-show="activeTab === 'info'" class="p-6">
+                            <table class="w-full">
+                                <tbody class="divide-y divide-slate-100">
+                                    <tr><td class="py-3 text-slate-500 w-28">거래유형</td><td class="py-3 font-medium" x-text="property.transaction_type"></td></tr>
+                                    <tr><td class="py-3 text-slate-500">매물유형</td><td class="py-3 font-medium" x-text="property.property_type"></td></tr>
+                                    <tr x-show="property.transaction_type === '매매'"><td class="py-3 text-slate-500">매매가</td><td class="py-3 font-medium text-primary-600" x-text="formatLargePrice(property.sale_price)"></td></tr>
+                                    <tr x-show="property.transaction_type !== '매매'"><td class="py-3 text-slate-500">보증금</td><td class="py-3 font-medium text-primary-600" x-text="formatLargePrice(property.deposit)"></td></tr>
+                                    <tr x-show="property.transaction_type === '월세'"><td class="py-3 text-slate-500">월세</td><td class="py-3 font-medium text-primary-600" x-text="(property.monthly_rent || '-') + '만원'"></td></tr>
+                                    <tr><td class="py-3 text-slate-500">관리비</td><td class="py-3 font-medium" x-text="property.maintenance_fee ? property.maintenance_fee + '만원' : '확인필요'"></td></tr>
+                                    <tr><td class="py-3 text-slate-500">전용면적</td><td class="py-3 font-medium"><span x-text="property.area_exclusive || '-'"></span>㎡</td></tr>
+                                    <tr><td class="py-3 text-slate-500">해당층</td><td class="py-3 font-medium" x-text="(property.floor_current || '-') + '층 / ' + (property.floor_total || '-') + '층'"></td></tr>
+                                    <tr><td class="py-3 text-slate-500">방/욕실</td><td class="py-3 font-medium" x-text="'방 ' + (property.room_count || '-') + '개 / 욕실 ' + (property.bathroom_count || '-') + '개'"></td></tr>
+                                    <tr><td class="py-3 text-slate-500">방향</td><td class="py-3 font-medium" x-text="property.direction || '-'"></td></tr>
+                                    <tr><td class="py-3 text-slate-500">입주</td><td class="py-3 font-medium" x-text="property.move_in_type || '협의'"></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Tab: Options -->
+                        <div x-show="activeTab === 'options'" class="p-6">
+                            <template x-if="property.options && property.options.length > 0">
+                                <div class="flex flex-wrap gap-3">
+                                    <template x-for="option in property.options" :key="option">
+                                        <span class="option-badge px-4 py-2 rounded-full text-sm font-medium text-slate-700 flex items-center gap-2">
+                                            <i data-lucide="check" class="w-4 h-4 text-primary-500"></i>
+                                            <span x-text="option"></span>
+                                        </span>
+                                    </template>
+                                </div>
+                            </template>
+                            <template x-if="!property.options || property.options.length === 0">
+                                <div class="text-center py-8 text-slate-400">
+                                    <p>옵션 정보가 없습니다</p>
+                                </div>
+                            </template>
+                        </div>
+                        
+                        <!-- Tab: Location -->
+                        <div x-show="activeTab === 'location'" class="p-6">
+                            <div class="mb-4">
+                                <h4 class="font-semibold text-slate-800 mb-2">주소</h4>
+                                <p class="text-slate-600" x-text="property.address_road || property.address_jibun"></p>
+                            </div>
+                            <div id="detail-map" class="h-64 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
+                                <div class="text-center">
+                                    <i data-lucide="map" class="w-12 h-12 mx-auto mb-2"></i>
+                                    <p>카카오맵 API 키 설정 필요</p>
+                                </div>
+                            </div>
+                            <div class="mt-6 grid grid-cols-2 gap-3 text-sm">
+                                <div class="flex items-center gap-2 text-slate-600">
+                                    <i data-lucide="train" class="w-4 h-4 text-blue-500"></i>
+                                    <span>혜화역 도보 5분</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-slate-600">
+                                    <i data-lucide="shopping-bag" class="w-4 h-4 text-green-500"></i>
+                                    <span>편의점 1분</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div x-show="property.description" class="bg-white rounded-2xl shadow-sm p-6">
+                        <h3 class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-5 h-5 text-primary-500"></i>
+                            상세 설명
+                        </h3>
+                        <p class="text-slate-600 whitespace-pre-line leading-relaxed" x-text="property.description"></p>
+                    </div>
+                </div>
+                
+                <!-- Right Column -->
+                <div class="space-y-6">
+                    <!-- Agent Card (Desktop) -->
+                    <div class="hidden lg:block bg-white rounded-2xl shadow-sm p-6 sticky top-24">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-16 h-16 bg-slate-200 rounded-full overflow-hidden">
+                                <img src="https://via.placeholder.com/100x100/e2e8f0/94a3b8?text=Agent" alt="중개사" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800">혜화72 부동산</h4>
+                                <p class="text-sm text-slate-500">공인중개사</p>
+                                <div class="flex items-center gap-1 mt-1">
+                                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                    <span class="text-sm font-medium">4.9</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <a href="tel:02-1234-5678" class="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors">
+                                <i data-lucide="phone" class="w-5 h-5"></i> 전화 문의
+                            </a>
+                            <a href="https://open.kakao.com/o/xxxxx" target="_blank" class="w-full py-3 bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors">
+                                카카오톡 문의
+                            </a>
+                        </div>
+                        <div class="mt-6 pt-6 border-t text-center text-sm text-slate-500">
+                            <p>📍 서울 성북구 혜화동</p>
+                            <p class="mt-1">09:00 - 18:00</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Similar Properties -->
+                    <div class="bg-white rounded-2xl shadow-sm p-6">
+                        <h3 class="font-bold text-lg text-slate-800 mb-4">비슷한 매물</h3>
+                        <div class="space-y-4">
+                            <template x-for="similar in similarProperties" :key="similar.id">
+                                <a :href="'property-detail.html?id=' + similar.id" class="flex gap-4 p-3 rounded-xl hover:bg-slate-50">
+                                    <div class="w-24 h-20 flex-shrink-0 bg-slate-100 rounded-lg overflow-hidden">
+                                        <img :src="similar.photos?.[0]?.url || 'https://via.placeholder.com/100x80'" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="font-bold text-primary-600 mb-1" x-text="formatSimilarPrice(similar)"></div>
+                                        <div class="text-sm text-slate-800 truncate" x-text="similar.building_name || '매물'"></div>
+                                        <div class="text-xs text-slate-500 mt-1" x-text="similar.property_type"></div>
+                                    </div>
+                                </a>
+                            </template>
+                        </div>
+                        <a href="index.html#properties" class="block mt-4 text-center text-primary-600 font-medium text-sm">
+                            전체 매물 보기 →
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Error State -->
+            <div x-show="!loading && !property" class="text-center py-20">
+                <div class="w-24 h-24 mx-auto mb-6 bg-slate-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="alert-circle" class="w-12 h-12 text-slate-300"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-700 mb-2">매물을 찾을 수 없습니다</h2>
+                <a href="index.html" class="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-xl font-medium">
+                    <i data-lucide="home" class="w-5 h-5"></i> 홈으로
+                </a>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Mobile CTA -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 z-50 sticky-cta bg-white border-t p-4">
+        <div class="flex gap-3">
+            <a href="tel:02-1234-5678" class="flex-1 py-3 bg-primary-600 text-white font-bold rounded-xl flex items-center justify-center gap-2">
+                <i data-lucide="phone" class="w-5 h-5"></i> 전화
+            </a>
+            <a href="https://open.kakao.com/o/xxxxx" class="flex-1 py-3 bg-yellow-400 text-slate-900 font-bold rounded-xl text-center">
+                카톡
+            </a>
+        </div>
+    </div>
+    
+    <!-- Lightbox -->
+    <div x-show="showLightbox" x-transition class="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
+         @keydown.escape.window="showLightbox = false">
+        <button @click="showLightbox = false" class="absolute top-4 right-4 text-white"><i data-lucide="x" class="w-8 h-8"></i></button>
+        <button @click="prevImage()" class="absolute left-4 text-white"><i data-lucide="chevron-left" class="w-12 h-12"></i></button>
+        <img :src="property?.photos?.[lightboxIndex]?.url" class="max-w-full max-h-[90vh] object-contain">
+        <button @click="nextImage()" class="absolute right-4 text-white"><i data-lucide="chevron-right" class="w-12 h-12"></i></button>
+        <div class="absolute bottom-4 text-white text-sm" x-text="(lightboxIndex + 1) + ' / ' + (property?.photos?.length || 0)"></div>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://64.23.232.179:8000';
+        
+        function propertyDetail() {
+            return {
+                property: null,
+                loading: true,
+                activeTab: 'info',
+                isFavorite: false,
+                similarProperties: [],
+                showLightbox: false,
+                lightboxIndex: 0,
+                
+                async init() {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const propertyId = urlParams.get('id');
+                    
+                    if (propertyId) {
+                        await this.loadProperty(propertyId);
+                        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+                        this.isFavorite = favorites.includes(propertyId);
+                    } else {
+                        this.loading = false;
+                    }
+                    
+                    lucide.createIcons();
+                    this.initSwiper();
+                },
+                
+                async loadProperty(id) {
+                    this.loading = true;
+                    try {
+                        const response = await fetch(`${API_BASE}/api/properties/${id}`);
+                        const data = await response.json();
+                        if (data.success && data.data) {
+                            this.property = data.data;
+                            await this.loadSimilarProperties();
+                        }
+                    } catch (error) {
+                        console.error('Failed:', error);
+                        this.loadSampleProperty(id);
+                    } finally {
+                        this.loading = false;
+                        this.$nextTick(() => { lucide.createIcons(); this.initSwiper(); });
+                    }
+                },
+                
+                loadSampleProperty(id) {
+                    this.property = {
+                        id: id || '1',
+                        building_name: '혜화 센트럴빌',
+                        address_road: '서울 성북구 혜화동 123-45',
+                        transaction_type: '월세',
+                        property_type: '원룸',
+                        deposit: 1000,
+                        monthly_rent: 50,
+                        maintenance_fee: 5,
+                        area_exclusive: 19.8,
+                        floor_current: '3',
+                        floor_total: '5',
+                        direction: '남향',
+                        room_count: 1,
+                        bathroom_count: 1,
+                        move_in_type: '즉시',
+                        options: ['에어컨', '냉장고', '세탁기', '가스레인지'],
+                        description: '혜화역 도보 5분 거리의 깔끔한 원룸입니다.\n\n풀옵션, 남향으로 채광 좋음',
+                        photos: [
+                            { url: 'https://via.placeholder.com/800x600/e2e8f0/64748b?text=Room+1' },
+                            { url: 'https://via.placeholder.com/800x600/dbeafe/3b82f6?text=Room+2' }
+                        ]
+                    };
+                    this.similarProperties = [
+                        { id: '2', building_name: '대학로 메트로시티', transaction_type: '전세', property_type: '오피스텔', deposit: 15000, photos: [] }
+                    ];
+                },
+                
+                async loadSimilarProperties() {
+                    try {
+                        const response = await fetch(`${API_BASE}/api/properties/public?limit=3`);
+                        const data = await response.json();
+                        if (data.success) {
+                            this.similarProperties = data.data.filter(p => p.id !== this.property.id).slice(0, 3);
+                        }
+                    } catch (e) { console.error(e); }
+                },
+                
+                initSwiper() {
+                    if (this.property?.photos?.length > 0) {
+                        new Swiper('.gallery-swiper', {
+                            navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+                            pagination: { el: '.swiper-pagination', clickable: true }
+                        });
+                    }
+                },
+                
+                formatPrice() {
+                    if (!this.property) return '-';
+                    if (this.property.transaction_type === '매매') return this.formatLargePrice(this.property.sale_price);
+                    if (this.property.transaction_type === '전세') return this.formatLargePrice(this.property.deposit);
+                    return `${this.property.deposit || 0}/${this.property.monthly_rent || 0}만`;
+                },
+                
+                formatLargePrice(value) {
+                    if (!value) return '-';
+                    if (value >= 10000) {
+                        const uk = Math.floor(value / 10000);
+                        const man = value % 10000;
+                        return uk + '억' + (man > 0 ? ' ' + man.toLocaleString() + '만' : '');
+                    }
+                    return value.toLocaleString() + '만원';
+                },
+                
+                formatSimilarPrice(p) {
+                    if (p.transaction_type === '전세') return '전세 ' + this.formatLargePrice(p.deposit);
+                    return `${p.deposit || 0}/${p.monthly_rent || 0}`;
+                },
+                
+                goBack() { window.history.back(); },
+                
+                toggleFavorite() {
+                    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+                    const id = this.property?.id;
+                    const index = favorites.indexOf(id);
+                    if (index > -1) { favorites.splice(index, 1); this.isFavorite = false; }
+                    else { favorites.push(id); this.isFavorite = true; }
+                    localStorage.setItem('favorites', JSON.stringify(favorites));
+                },
+                
+                shareProperty() {
+                    if (navigator.share) {
+                        navigator.share({ title: this.property?.building_name, url: window.location.href });
+                    } else {
+                        navigator.clipboard.writeText(window.location.href).then(() => alert('링크가 복사되었습니다!'));
+                    }
+                },
+                
+                openLightbox(index) { this.lightboxIndex = index; this.showLightbox = true; },
+                prevImage() { this.lightboxIndex = (this.lightboxIndex - 1 + this.property.photos.length) % this.property.photos.length; },
+                nextImage() { this.lightboxIndex = (this.lightboxIndex + 1) % this.property.photos.length; }
+            };
+        }
+    </script>
+</body>
+</html>
