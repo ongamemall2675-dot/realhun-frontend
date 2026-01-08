@@ -1,85 +1,202 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>혜화72 스마트 오피스</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
-
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f3f4f6;
-        }
-
-        .app-card:hover {
-            transform: translateY(-5px);
-            transition: all 0.3s ease;
-        }
-    </style>
+    <link rel="stylesheet" href="/assets/css/common.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
-
-<body class="p-6">
-    <div class="max-w-6xl mx-auto">
-        <header class="mb-8 flex justify-between items-center">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">🚀 혜화72 스마트 오피스</h1>
-                <p class="text-gray-600 mt-2">오늘도 최고의 중개를 시작해볼까요?</p>
+<body>
+    <div class="layout">
+        <!-- 사이드바 -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                🏢 혜화72
             </div>
-            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">v1.0 Staff Only</span>
-        </header>
-
-        <h2 class="text-xl font-bold text-gray-700 mb-4"><i class="fas fa-tools mr-2"></i>빠른 실행</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <a href="https://vrew.ai" target="_blank"
-                class="app-card bg-white p-6 rounded-xl shadow-sm border hover:shadow-md flex flex-col items-center justify-center cursor-pointer">
-                <div
-                    class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mb-3 text-indigo-600 text-xl">
-                    <i class="fas fa-video"></i></div>
-                <span class="font-medium">Vrew 실행</span>
-            </a>
-            <a href="https://new.land.naver.com" target="_blank"
-                class="app-card bg-white p-6 rounded-xl shadow-sm border hover:shadow-md flex flex-col items-center justify-center cursor-pointer">
-                <div
-                    class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3 text-green-600 text-xl">
-                    <i class="fas fa-map-marked-alt"></i></div>
-                <span class="font-medium">네이버 부동산</span>
-            </a>
-            <a href="https://disco.re" target="_blank"
-                class="app-card bg-white p-6 rounded-xl shadow-sm border hover:shadow-md flex flex-col items-center justify-center cursor-pointer">
-                <div
-                    class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3 text-blue-600 text-xl">
-                    <i class="fas fa-building"></i></div>
-                <span class="font-medium">디스코</span>
-            </a>
-        </div>
-
-        <h2 class="text-xl font-bold text-gray-700 mb-4"><i class="fas fa-robot mr-2"></i>AI 비서</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <a href="/apps/economy_script.html"
-                class="app-card bg-white rounded-xl shadow-sm border overflow-hidden hover:shadow-md group">
-                <div class="h-2 bg-gradient-to-r from-blue-500 to-cyan-500"></div>
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600"><i
-                                class="fas fa-pen-nib"></i></div>
-                        <i class="fas fa-arrow-right text-gray-300 group-hover:text-blue-500 transition-colors"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-800 mb-1">경제학 1타 강사</h3>
-                    <p class="text-sm text-gray-500">어려운 경제 뉴스를 유튜버처럼 쉽게 설명해주는 대본 생성기</p>
+            
+            <nav>
+                <ul class="sidebar-nav">
+                    <li><a href="/" class="active"><i class="fas fa-home"></i> 대시보드</a></li>
+                    
+                    <div class="nav-section">AI 콘텐츠</div>
+                    <li><a href="/apps/economy_script.html"><i class="fas fa-chart-line"></i> 경제학 1타 강사</a></li>
+                    <li><a href="/apps/senior_health.html"><i class="fas fa-heartbeat"></i> 시니어 건강</a></li>
+                    <li><a href="/apps/story_teller.html"><i class="fas fa-book"></i> 스토리텔러</a></li>
+                    
+                    <div class="nav-section">부동산</div>
+                    <li><a href="/realestate/"><i class="fas fa-building"></i> 매물 목록</a></li>
+                    <li><a href="/realestate/admin.html"><i class="fas fa-edit"></i> 매물 관리</a></li>
+                    
+                    <div class="nav-section">관리</div>
+                    <li><a href="/admin/n8n-control.html"><i class="fas fa-cogs"></i> n8n 제어</a></li>
+                    <li><a href="/admin/rag.html"><i class="fas fa-database"></i> RAG 관리</a></li>
+                    <li><a href="/admin/server-status.html"><i class="fas fa-server"></i> 서버 상태</a></li>
+                </ul>
+            </nav>
+            
+            <!-- 서버 상태 미니 위젯 -->
+            <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">서버 상태</div>
+                <div style="display: flex; gap: 1rem; font-size: 0.8rem;">
+                    <span><span class="status-indicator status-online" id="status-n8n"></span> n8n</span>
+                    <span><span class="status-indicator status-online" id="status-rag"></span> RAG</span>
                 </div>
-            </a>
-
-            <div
-                class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-6 flex flex-col items-center justify-center text-gray-400">
-                <i class="fas fa-plus-circle text-2xl mb-2"></i>
-                <span class="text-sm">건강 정보 앱 (준비중)</span>
             </div>
-        </div>
-    </div>
-</body>
+        </aside>
 
+        <!-- 메인 콘텐츠 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">👋 안녕하세요, 사장님!</h1>
+                <p class="page-subtitle">오늘도 최고의 중개를 시작해볼까요?</p>
+            </div>
+
+            <!-- 빠른 실행 -->
+            <section class="mb-4">
+                <h2 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">
+                    <i class="fas fa-bolt" style="color: var(--accent);"></i> 빠른 실행
+                </h2>
+                <div class="grid grid-4">
+                    <a href="https://vrew.ai" target="_blank" class="app-card">
+                        <div class="app-card-bar" style="background: linear-gradient(90deg, #6366f1, #8b5cf6);"></div>
+                        <div class="app-card-content" style="text-align: center; padding: 1.25rem;">
+                            <div class="app-card-icon" style="background: #eef2ff; color: #6366f1; margin: 0 auto 0.75rem;">
+                                <i class="fas fa-video"></i>
+                            </div>
+                            <h3 style="margin-bottom: 0;">Vrew</h3>
+                        </div>
+                    </a>
+                    <a href="https://new.land.naver.com" target="_blank" class="app-card">
+                        <div class="app-card-bar" style="background: linear-gradient(90deg, #22c55e, #16a34a);"></div>
+                        <div class="app-card-content" style="text-align: center; padding: 1.25rem;">
+                            <div class="app-card-icon" style="background: #dcfce7; color: #22c55e; margin: 0 auto 0.75rem;">
+                                <i class="fas fa-map-marked-alt"></i>
+                            </div>
+                            <h3 style="margin-bottom: 0;">네이버 부동산</h3>
+                        </div>
+                    </a>
+                    <a href="https://disco.re" target="_blank" class="app-card">
+                        <div class="app-card-bar" style="background: linear-gradient(90deg, #3b82f6, #1d4ed8);"></div>
+                        <div class="app-card-content" style="text-align: center; padding: 1.25rem;">
+                            <div class="app-card-icon" style="background: #dbeafe; color: #3b82f6; margin: 0 auto 0.75rem;">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <h3 style="margin-bottom: 0;">디스코</h3>
+                        </div>
+                    </a>
+                    <a href="https://chatgpt.com" target="_blank" class="app-card">
+                        <div class="app-card-bar" style="background: linear-gradient(90deg, #10b981, #059669);"></div>
+                        <div class="app-card-content" style="text-align: center; padding: 1.25rem;">
+                            <div class="app-card-icon" style="background: #d1fae5; color: #10b981; margin: 0 auto 0.75rem;">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h3 style="margin-bottom: 0;">ChatGPT</h3>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- AI 콘텐츠 제작소 -->
+            <section class="mb-4">
+                <h2 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">
+                    <i class="fas fa-magic" style="color: var(--primary);"></i> AI 콘텐츠 제작소
+                </h2>
+                <div class="grid grid-3">
+                    <a href="/apps/economy_script.html" class="app-card">
+                        <div class="app-card-bar" style="background: linear-gradient(90deg, #3b82f6, #06b6d4);"></div>
+                        <div class="app-card-content">
+                            <div class="app-card-icon" style="background: #dbeafe; color: #3b82f6;">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h3>경제학 1타 강사</h3>
+                            <p>어려운 경제 뉴스를 쉽게 설명하는 대본 생성</p>
+                            <span class="badge badge-success" style="margin-top: 0.75rem;">
+                                <i class="fas fa-check"></i> 사용 가능
+                            </span>
+                        </div>
+                    </a>
+                    
+                    <div class="app-card-placeholder">
+                        <i class="fas fa-heartbeat" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                        <span>시니어 건강 (준비중)</span>
+                    </div>
+                    
+                    <div class="app-card-placeholder">
+                        <i class="fas fa-book" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                        <span>스토리텔러 (준비중)</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 부동산 & 관리 -->
+            <section>
+                <div class="grid grid-2">
+                    <!-- 부동산 카드 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-home" style="color: var(--secondary);"></i> 부동산 관리
+                        </div>
+                        <div class="card-body">
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                <a href="/realestate/" class="btn btn-secondary" style="justify-content: flex-start;">
+                                    <i class="fas fa-list"></i> 매물 목록 보기
+                                </a>
+                                <a href="/realestate/admin.html" class="btn btn-secondary" style="justify-content: flex-start;">
+                                    <i class="fas fa-plus"></i> 새 매물 등록
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 시스템 카드 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-server" style="color: var(--danger);"></i> 시스템 관리
+                        </div>
+                        <div class="card-body">
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                <a href="/admin/n8n-control.html" class="btn btn-secondary" style="justify-content: flex-start;">
+                                    <i class="fas fa-cogs"></i> n8n 워크플로우 관리
+                                </a>
+                                <a href="/admin/server-status.html" class="btn btn-secondary" style="justify-content: flex-start;">
+                                    <i class="fas fa-chart-area"></i> 서버 상태 확인
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/assets/js/api.js"></script>
+    <script>
+        // 서버 상태 체크
+        async function checkServers() {
+            const n8nStatus = document.getElementById('status-n8n');
+            const ragStatus = document.getElementById('status-rag');
+            
+            // n8n 체크
+            try {
+                const res = await fetch('https://n8n.hyehwa72.org/healthz', { mode: 'no-cors' });
+                n8nStatus.className = 'status-indicator status-online';
+            } catch {
+                n8nStatus.className = 'status-indicator status-offline';
+            }
+            
+            // RAG 체크
+            try {
+                const res = await fetch('https://rag.hyehwa72.org/health');
+                ragStatus.className = res.ok ? 'status-indicator status-online' : 'status-indicator status-warning';
+            } catch {
+                ragStatus.className = 'status-indicator status-offline';
+            }
+        }
+        
+        // 페이지 로드 시 서버 상태 체크
+        checkServers();
+        setInterval(checkServers, 60000); // 1분마다 갱신
+    </script>
+</body>
 </html>

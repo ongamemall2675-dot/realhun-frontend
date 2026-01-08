@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매물 목록 - 혜화72부동산</title>
+    <link rel="stylesheet" href="/assets/css/common.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .listing-card { cursor: pointer; }
+        .listing-card img { width: 100%; height: 160px; object-fit: cover; }
+        .listing-info { padding: 1rem; }
+        .listing-price { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+        .listing-type { font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 4px; background: #e2e8f0; }
+        .filter-bar { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">🏢 혜화72</div>
+            <nav>
+                <ul class="sidebar-nav">
+                    <li><a href="/"><i class="fas fa-home"></i> 대시보드</a></li>
+                    <div class="nav-section">AI 콘텐츠</div>
+                    <li><a href="/apps/economy_script.html"><i class="fas fa-chart-line"></i> 경제학 1타 강사</a></li>
+                    <div class="nav-section">부동산</div>
+                    <li><a href="/realestate/" class="active"><i class="fas fa-building"></i> 매물 목록</a></li>
+                    <li><a href="/realestate/admin.html"><i class="fas fa-edit"></i> 매물 관리</a></li>
+                    <div class="nav-section">관리</div>
+                    <li><a href="/admin/n8n-control.html"><i class="fas fa-cogs"></i> n8n 제어</a></li>
+                    <li><a href="/admin/server-status.html"><i class="fas fa-server"></i> 서버 상태</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title"><i class="fas fa-building"></i> 매물 목록</h1>
+                <p class="page-subtitle">혜화동 주변 매물을 확인하세요</p>
+            </div>
+
+            <!-- 필터 -->
+            <div class="filter-bar">
+                <select class="form-select" style="width: auto;" id="filter-type">
+                    <option value="">전체 유형</option>
+                    <option value="원룸">원룸</option>
+                    <option value="투룸">투룸</option>
+                    <option value="오피스텔">오피스텔</option>
+                    <option value="아파트">아파트</option>
+                </select>
+                <select class="form-select" style="width: auto;" id="filter-deal">
+                    <option value="">전체 거래</option>
+                    <option value="월세">월세</option>
+                    <option value="전세">전세</option>
+                    <option value="매매">매매</option>
+                </select>
+                <button class="btn btn-primary" onclick="filterListings()">
+                    <i class="fas fa-filter"></i> 필터 적용
+                </button>
+            </div>
+
+            <!-- 매물 그리드 -->
+            <div class="grid grid-3" id="listing-grid">
+                <!-- 샘플 매물 카드 -->
+                <div class="card listing-card">
+                    <img src="https://via.placeholder.com/400x200/e2e8f0/64748b?text=매물+이미지" alt="매물">
+                    <div class="listing-info">
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <span class="listing-type">원룸</span>
+                            <span class="listing-type">월세</span>
+                        </div>
+                        <div class="listing-price">1000/60</div>
+                        <div style="font-size: 0.9rem; margin-top: 0.5rem;">혜화역 도보 5분 풀옵션</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+                            <i class="fas fa-map-marker-alt"></i> 종로구 혜화동
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card listing-card">
+                    <img src="https://via.placeholder.com/400x200/dbeafe/3b82f6?text=매물+이미지" alt="매물">
+                    <div class="listing-info">
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <span class="listing-type">투룸</span>
+                            <span class="listing-type">전세</span>
+                        </div>
+                        <div class="listing-price">2억 5000</div>
+                        <div style="font-size: 0.9rem; margin-top: 0.5rem;">성균관대 후문 신축 투룸</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+                            <i class="fas fa-map-marker-alt"></i> 종로구 명륜동
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 데이터 연결 안내 -->
+                <div class="app-card-placeholder">
+                    <i class="fas fa-database" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                    <span>Google Sheets 연동 예정</span>
+                    <small style="margin-top: 0.5rem;">매물 데이터가 자동으로 표시됩니다</small>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/assets/js/api.js"></script>
+    <script>
+        // Google Sheets에서 매물 데이터 로드 (n8n 웹훅 통해)
+        async function loadListings() {
+            // TODO: n8n 웹훅 구현 후 연결
+            // const data = await H72_API.callN8N('/listings', {});
+            // renderListings(data);
+        }
+        
+        function filterListings() {
+            const type = document.getElementById('filter-type').value;
+            const deal = document.getElementById('filter-deal').value;
+            Toast.info(`필터: ${type || '전체'} / ${deal || '전체'}`);
+            // TODO: 필터 적용 로직
+        }
+        
+        // 페이지 로드 시
+        // loadListings();
+    </script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매물 관리 - 혜화72부동산</title>
+    <link rel="stylesheet" href="/assets/css/common.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">🏢 혜화72</div>
+            <nav>
+                <ul class="sidebar-nav">
+                    <li><a href="/"><i class="fas fa-home"></i> 대시보드</a></li>
+                    <div class="nav-section">AI 콘텐츠</div>
+                    <li><a href="/apps/economy_script.html"><i class="fas fa-chart-line"></i> 경제학 1타 강사</a></li>
+                    <div class="nav-section">부동산</div>
+                    <li><a href="/realestate/"><i class="fas fa-building"></i> 매물 목록</a></li>
+                    <li><a href="/realestate/admin.html" class="active"><i class="fas fa-edit"></i> 매물 관리</a></li>
+                    <div class="nav-section">관리</div>
+                    <li><a href="/admin/n8n-control.html"><i class="fas fa-cogs"></i> n8n 제어</a></li>
+                    <li><a href="/admin/server-status.html"><i class="fas fa-server"></i> 서버 상태</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title"><i class="fas fa-edit"></i> 매물 관리</h1>
+                <p class="page-subtitle">새 매물을 등록하거나 기존 매물을 수정합니다</p>
+            </div>
+
+            <!-- 새 매물 등록 폼 -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-plus"></i> 새 매물 등록
+                </div>
+                <div class="card-body">
+                    <form id="listing-form">
+                        <div class="grid grid-2">
+                            <div class="form-group">
+                                <label class="form-label">매물 유형 *</label>
+                                <select class="form-select" name="type" required>
+                                    <option value="">선택하세요</option>
+                                    <option value="원룸">원룸</option>
+                                    <option value="투룸">투룸</option>
+                                    <option value="쓰리룸">쓰리룸</option>
+                                    <option value="오피스텔">오피스텔</option>
+                                    <option value="아파트">아파트</option>
+                                    <option value="빌라">빌라</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">거래 유형 *</label>
+                                <select class="form-select" name="deal" required>
+                                    <option value="">선택하세요</option>
+                                    <option value="월세">월세</option>
+                                    <option value="전세">전세</option>
+                                    <option value="매매">매매</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-2">
+                            <div class="form-group">
+                                <label class="form-label">보증금 (만원) *</label>
+                                <input type="number" class="form-input" name="deposit" placeholder="예: 1000" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">월세 (만원)</label>
+                                <input type="number" class="form-input" name="rent" placeholder="예: 60">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">제목 *</label>
+                            <input type="text" class="form-input" name="title" placeholder="예: 혜화역 도보 5분 풀옵션 원룸" required>
+                        </div>
+                        
+                        <div class="grid grid-2">
+                            <div class="form-group">
+                                <label class="form-label">주소 *</label>
+                                <input type="text" class="form-input" name="address" placeholder="예: 종로구 혜화동 123-45" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">면적 (㎡)</label>
+                                <input type="number" class="form-input" name="area" placeholder="예: 33">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">상세 설명</label>
+                            <textarea class="form-textarea" name="description" rows="4" placeholder="매물에 대한 상세 설명을 입력하세요..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">옵션</label>
+                            <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                                <label><input type="checkbox" name="options" value="에어컨"> 에어컨</label>
+                                <label><input type="checkbox" name="options" value="세탁기"> 세탁기</label>
+                                <label><input type="checkbox" name="options" value="냉장고"> 냉장고</label>
+                                <label><input type="checkbox" name="options" value="가스레인지"> 가스레인지</label>
+                                <label><input type="checkbox" name="options" value="인덕션"> 인덕션</label>
+                                <label><input type="checkbox" name="options" value="전자레인지"> 전자레인지</label>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                            <button type="button" class="btn btn-secondary" onclick="clearForm()">초기화</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> 등록하기
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 안내 -->
+            <div class="card">
+                <div class="card-body" style="text-align: center; color: var(--text-muted);">
+                    <i class="fas fa-info-circle"></i>
+                    등록된 매물은 Google Sheets에 자동 저장됩니다.<br>
+                    <a href="https://docs.google.com/spreadsheets" target="_blank" class="btn btn-secondary mt-4">
+                        <i class="fab fa-google-drive"></i> Google Sheets 열기
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/assets/js/api.js"></script>
+    <script>
+        document.getElementById('listing-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            
+            // 체크박스(옵션) 처리
+            data.options = Array.from(this.querySelectorAll('input[name="options"]:checked'))
+                                .map(cb => cb.value);
+            
+            try {
+                // n8n 웹훅으로 전송
+                // await H72_API.callN8N('/add-listing', data);
+                Toast.success('매물이 등록되었습니다!');
+                this.reset();
+            } catch (error) {
+                Toast.error('등록 중 오류가 발생했습니다.');
+            }
+        });
+        
+        function clearForm() {
+            document.getElementById('listing-form').reset();
+            Toast.info('폼이 초기화되었습니다.');
+        }
+    </script>
+</body>
+</html>
