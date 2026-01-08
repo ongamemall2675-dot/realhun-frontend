@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>혜화72 부동산 관리자</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
+        .sidebar-item:hover { background: rgba(255,255,255,0.1); }
+        .sidebar-item.active { background: rgba(99,102,241,0.3); border-left: 3px solid #818cf8; }
+        .submenu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .submenu.open { max-height: 500px; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { dark: { 700: '#2d2d3f', 800: '#1e1e2d', 900: '#151521' } } } }
+        }
+    </script>
+</head>
+<body class="bg-gray-100" x-data="adminApp()">
+<div class="flex h-screen">
+<!-- 사이드바 -->
+<aside class="w-64 bg-dark-900 text-white flex flex-col flex-shrink-0">
+    <div class="p-4 border-b border-dark-700">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+                <i data-lucide="home" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="font-bold">혜화72 부동산</h1>
+                <p class="text-xs text-gray-400">관리자 v2.0</p>
+            </div>
+        </div>
+    </div>
+    <nav class="flex-1 py-4 overflow-y-auto">
+        <a href="#" @click.prevent="currentPage='dashboard'" :class="{'active': currentPage==='dashboard'}" class="sidebar-item flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white">
+            <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span>대시보드</span>
+        </a>
+        <div class="mt-4">
+            <div @click="openMenus.ledger=!openMenus.ledger" class="sidebar-item flex items-center justify-between px-4 py-3 text-gray-300 hover:text-white cursor-pointer">
+                <div class="flex items-center gap-3"><i data-lucide="database" class="w-5 h-5"></i><span>부동산 원장</span></div>
+                <i data-lucide="chevron-down" class="w-4 h-4 transition-transform" :class="{'rotate-180':openMenus.ledger}"></i>
+            </div>
+            <div class="submenu bg-dark-800" :class="{'open':openMenus.ledger}">
+                <a href="#" @click.prevent="currentPage='ledger-list'" :class="{'text-indigo-400':currentPage==='ledger-list'}" class="block pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white">원장 관리</a>
+                <a href="#" @click.prevent="currentPage='public-data'" :class="{'text-indigo-400':currentPage==='public-data'}" class="block pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white">공적장부 조회</a>
+            </div>
+        </div>
+        <div class="mt-2">
+            <div @click="openMenus.property=!openMenus.property" class="sidebar-item flex items-center justify-between px-4 py-3 text-gray-300 hover:text-white cursor-pointer">
+                <div class="flex items-center gap-3"><i data-lucide="building-2" class="w-5 h-5"></i><span>매물 관리</span></div>
+                <i data-lucide="chevron-down" class="w-4 h-4 transition-transform" :class="{'rotate-180':openMenus.property}"></i>
+            </div>
+            <div class="submenu bg-dark-800" :class="{'open':openMenus.property}">
+                <a href="#" @click.prevent="currentPage='property-list'" :class="{'text-indigo-400':currentPage==='property-list'}" class="block pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white">매물 목록</a>
+                <a href="#" @click.prevent="currentPage='property-add'" :class="{'text-indigo-400':currentPage==='property-add'}" class="block pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white">매물 등록</a>
+            </div>
+        </div>
+        <div class="mt-2">
+            <div @click="openMenus.customer=!openMenus.customer" class="sidebar-item flex items-center justify-between px-4 py-3 text-gray-300 hover:text-white cursor-pointer">
+                <div class="flex items-center gap-3"><i data-lucide="users" class="w-5 h-5"></i><span>고객 관리</span></div>
+                <i data-lucide="chevron-down" class="w-4 h-4 transition-transform" :class="{'rotate-180':openMenus.customer}"></i>
+            </div>
+            <div class="submenu bg-dark-800" :class="{'open':openMenus.customer}">
+                <a href="#" @click.prevent="currentPage='customer-list'" :class="{'text-indigo-400':currentPage==='customer-list'}" class="block pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white">고객 목록</a>
+                <a href="#" @click.prevent="currentPage='customer-add'" :class="{'text-indigo-400':currentPage==='customer-add'}" class="block pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white">고객 등록</a>
+                <a href="#" @click.prevent="currentPage='request-list'" :class="{'text-indigo-400':currentPage==='request-list'}" class="block pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white">의뢰 관리</a>
+            </div>
+        </div>
+        <div class="mt-2">
+            <div @click="openMenus.contract=!openMenus.contract" class="sidebar-item flex items-center justify-between px-4 py-3 text-gray-300 hover:text-white cursor-pointer">
+                <div class="flex items-center gap-3"><i data-lucide="file-text" class="w-5 h-5"></i><span>계약 관리</span></div>
+                <i data-lucide="chevron-down" class="w-4 h-4 transition-transform" :class="{'rotate-180':openMenus.contract}"></i>
+            </div>
+            <div class="submenu bg-dark-800" :class="{'open':openMenus.contract}">
+                <a href="#" @click.prevent="currentPage='contract-list'" :class="{'text-indigo-400':currentPage==='contract-list'}" class="block pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white">계약 목록</a>
+            </div>
+        </div>
+        <a href="#" @click.prevent="currentPage='schedule'" :class="{'active':currentPage==='schedule'}" class="sidebar-item flex items-center gap-3 px-4 py-3 mt-2 text-gray-300 hover:text-white">
+            <i data-lucide="calendar" class="w-5 h-5"></i><span>일정 관리</span>
+        </a>
+        <a href="#" @click.prevent="currentPage='settings'" :class="{'active':currentPage==='settings'}" class="sidebar-item flex items-center gap-3 px-4 py-3 mt-2 text-gray-300 hover:text-white">
+            <i data-lucide="settings" class="w-5 h-5"></i><span>설정</span>
+        </a>
+    </nav>
+    <div class="p-4 border-t border-dark-700">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-sm font-bold">김훈</div>
+            <div class="flex-1"><p class="text-sm font-medium">김훈</p><p class="text-xs text-gray-400">대학로혜화72</p></div>
+        </div>
+    </div>
+</aside>
+<!-- 메인 콘텐츠 -->
+<main class="flex-1 flex flex-col overflow-hidden">
+    <header class="bg-white shadow-sm px-6 py-4 flex items-center justify-between flex-shrink-0">
+        <div>
+            <h2 class="text-xl font-bold text-gray-800" x-text="pageTitle"></h2>
+            <p class="text-sm text-gray-500" x-text="pageDesc"></p>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="relative">
+                <input type="text" placeholder="검색..." class="pl-10 pr-4 py-2 border rounded-lg w-64">
+                <i data-lucide="search" class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            </div>
+            <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg relative">
+                <i data-lucide="bell" class="w-5 h-5"></i>
+                <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            <a href="https://hyehwa72.org" target="_blank" class="px-3 py-2 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg flex items-center gap-1">
+                <i data-lucide="external-link" class="w-4 h-4"></i>홈페이지
+            </a>
+        </div>
+    </header>
+    <div class="flex-1 overflow-auto p-6">
+
+        <!-- 대시보드 -->
+        <template x-if="currentPage==='dashboard'">
+            <div>
+                <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-6 mb-6 text-white">
+                    <h3 class="text-lg font-medium mb-1">공인중개사를 위한 스마트 중개업 솔루션</h3>
+                    <p class="text-indigo-200 text-sm">혜화72 부동산 관리 시스템에 오신 것을 환영합니다.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition cursor-pointer" @click="currentPage='property-list'">
+                        <div class="flex items-center justify-between">
+                            <div><p class="text-sm text-gray-500">매물</p><p class="text-3xl font-bold"><span class="text-green-600" x-text="stats.activeProperties">0</span>/<span class="text-gray-400" x-text="stats.totalProperties">0</span></p></div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center"><i data-lucide="building-2" class="w-6 h-6 text-blue-600"></i></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">활성 / 전체</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition cursor-pointer" @click="currentPage='request-list'">
+                        <div class="flex items-center justify-between">
+                            <div><p class="text-sm text-gray-500">의뢰</p><p class="text-3xl font-bold"><span class="text-yellow-600" x-text="stats.activeRequests">0</span>/<span class="text-gray-400" x-text="stats.totalRequests">0</span></p></div>
+                            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center"><i data-lucide="clipboard-list" class="w-6 h-6 text-yellow-600"></i></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">진행중 / 전체</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition cursor-pointer" @click="currentPage='contract-list'">
+                        <div class="flex items-center justify-between">
+                            <div><p class="text-sm text-gray-500">계약</p><p class="text-3xl font-bold"><span class="text-purple-600" x-text="stats.activeContracts">0</span>/<span class="text-gray-400" x-text="stats.totalContracts">0</span></p></div>
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center"><i data-lucide="file-text" class="w-6 h-6 text-purple-600"></i></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">진행중 / 전체</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition cursor-pointer" @click="currentPage='schedule'">
+                        <div class="flex items-center justify-between">
+                            <div><p class="text-sm text-gray-500">오늘 일정</p><p class="text-3xl font-bold text-red-600" x-text="todayEvents.length">0</p></div>
+                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center"><i data-lucide="calendar" class="w-6 h-6 text-red-600"></i></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">건</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm">
+                        <h3 class="font-bold text-gray-800 mb-4">빠른 실행</h3>
+                        <div class="grid grid-cols-3 gap-4">
+                            <template x-for="m in quickMenus" :key="m.page">
+                                <button @click="currentPage=m.page" class="flex flex-col items-center gap-2 p-4 rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-200">
+                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center" :class="m.bg"><i :data-lucide="m.icon" class="w-6 h-6" :class="m.color"></i></div>
+                                    <span class="text-sm text-gray-700" x-text="m.label"></span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-gray-800">오늘 일정</h3>
+                            <button @click="currentPage='schedule'" class="text-xs text-indigo-600 hover:underline">전체보기</button>
+                        </div>
+                        <div class="text-center mb-4">
+                            <p class="text-2xl font-bold" x-text="new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric'})"></p>
+                            <p class="text-sm text-gray-500" x-text="new Date().toLocaleDateString('ko-KR',{weekday:'long'})"></p>
+                        </div>
+                        <div class="space-y-2">
+                            <template x-for="e in todayEvents" :key="e.id">
+                                <div class="flex items-center gap-2 p-2 rounded-lg bg-gray-50">
+                                    <div class="w-1 h-8 rounded-full" :class="e.color"></div>
+                                    <div><p class="text-sm font-medium" x-text="e.title"></p><p class="text-xs text-gray-500" x-text="e.time"></p></div>
+                                </div>
+                            </template>
+                            <template x-if="todayEvents.length===0"><p class="text-sm text-gray-500 text-center py-4">오늘 일정이 없습니다</p></template>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-sm mt-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-gray-800">최근 등록 매물</h3>
+                        <button @click="currentPage='property-list'" class="text-sm text-indigo-600 hover:underline">전체 보기</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead><tr class="text-left text-sm text-gray-500 border-b"><th class="pb-3">매물번호</th><th class="pb-3">주소</th><th class="pb-3">유형</th><th class="pb-3">거래</th><th class="pb-3">가격</th><th class="pb-3">중요도</th><th class="pb-3">상태</th></tr></thead>
+                            <tbody>
+                                <template x-for="p in recentProperties" :key="p.id">
+                                    <tr class="border-b hover:bg-gray-50 cursor-pointer" @click="viewProperty(p.id)">
+                                        <td class="py-3 text-sm font-mono text-indigo-600" x-text="p.property_number"></td>
+                                        <td class="py-3 text-sm" x-text="p.address"></td>
+                                        <td class="py-3 text-sm" x-text="p.property_type"></td>
+                                        <td class="py-3 text-sm" x-text="p.transaction_type"></td>
+                                        <td class="py-3 text-sm font-medium" x-text="formatPrice(p)"></td>
+                                        <td class="py-3"><span class="px-2 py-1 text-xs rounded-full" :class="getImportanceClass(p.importance)" x-text="p.importance||'없음'"></span></td>
+                                        <td class="py-3"><span class="px-2 py-1 text-xs rounded-full" :class="getStatusClass(p.status)" x-text="getStatusText(p.status)"></span></td>
+                                    </tr>
+                                </template>
+                                <template x-if="recentProperties.length===0"><tr><td colspan="7" class="py-8 text-center text-gray-500">등록된 매물이 없습니다.</td></tr></template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <!-- 매물 목록 -->
+        <template x-if="currentPage==='property-list'">
+            <div>
+                <div class="bg-white rounded-xl p-6 shadow-sm mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-gray-800">검색 필터</h3>
+                        <button @click="resetFilters()" class="text-sm text-gray-500 hover:text-gray-700"><i data-lucide="rotate-ccw" class="w-4 h-4 inline mr-1"></i>초기화</button>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        <div><label class="block text-xs text-gray-500 mb-1">물건 유형</label><select x-model="filters.property_type" class="w-full px-3 py-2 border rounded-lg text-sm"><option value="">전체</option><template x-for="t in propertyTypes"><option :value="t" x-text="t"></option></template></select></div>
+                        <div><label class="block text-xs text-gray-500 mb-1">거래 유형</label><select x-model="filters.transaction_type" class="w-full px-3 py-2 border rounded-lg text-sm"><option value="">전체</option><option value="매매">매매</option><option value="전세">전세</option><option value="월세">월세</option></select></div>
+                        <div><label class="block text-xs text-gray-500 mb-1">중요도</label><select x-model="filters.importance" class="w-full px-3 py-2 border rounded-lg text-sm"><option value="">전체</option><option value="긴급">긴급</option><option value="상">상</option><option value="중">중</option><option value="하">하</option><option value="없음">없음</option></select></div>
+                        <div><label class="block text-xs text-gray-500 mb-1">상태</label><select x-model="filters.status" class="w-full px-3 py-2 border rounded-lg text-sm"><option value="">전체</option><option value="active">활성</option><option value="reserved">예약</option><option value="contracted">계약완료</option><option value="hidden">숨김</option></select></div>
+                        <div><label class="block text-xs text-gray-500 mb-1">매물번호</label><input type="text" x-model="filters.property_number" placeholder="P202601-0001" class="w-full px-3 py-2 border rounded-lg text-sm"></div>
+                        <div><label class="block text-xs text-gray-500 mb-1">주소/건물명</label><input type="text" x-model="filters.keyword" placeholder="검색어" class="w-full px-3 py-2 border rounded-lg text-sm"></div>
+                    </div>
+                    <div class="flex justify-end mt-4"><button @click="loadProperties()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"><i data-lucide="search" class="w-4 h-4"></i>검색</button></div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm">
+                    <div class="p-4 border-b flex items-center justify-between">
+                        <span class="text-sm text-gray-500">총 <span class="font-bold text-indigo-600" x-text="pagination.total">0</span>개</span>
+                        <button @click="currentPage='property-add'" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>매물 등록</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead><tr class="text-left text-sm text-gray-500 border-b bg-gray-50"><th class="p-4"><input type="checkbox" class="rounded"></th><th class="p-4">매물번호</th><th class="p-4">물건유형</th><th class="p-4">주소</th><th class="p-4">거래</th><th class="p-4">가격</th><th class="p-4">면적</th><th class="p-4">중요도</th><th class="p-4">상태</th><th class="p-4">공개</th><th class="p-4">등록일</th><th class="p-4">관리</th></tr></thead>
+                            <tbody>
+                                <template x-for="p in properties" :key="p.id">
+                                    <tr class="border-b hover:bg-gray-50">
+                                        <td class="p-4"><input type="checkbox" class="rounded"></td>
+                                        <td class="p-4 text-sm font-mono text-indigo-600 cursor-pointer hover:underline" @click="viewProperty(p.id)" x-text="p.property_number"></td>
+                                        <td class="p-4 text-sm" x-text="p.property_type"></td>
+                                        <td class="p-4 text-sm max-w-xs truncate" x-text="p.address"></td>
+                                        <td class="p-4 text-sm" x-text="p.transaction_type"></td>
+                                        <td class="p-4 text-sm font-medium" x-text="formatPrice(p)"></td>
+                                        <td class="p-4 text-sm" x-text="p.area_exclusive?p.area_exclusive+'㎡':'-'"></td>
+                                        <td class="p-4"><span class="px-2 py-1 text-xs rounded-full" :class="getImportanceClass(p.importance)" x-text="p.importance||'없음'"></span></td>
+                                        <td class="p-4"><span class="px-2 py-1 text-xs rounded-full" :class="getStatusClass(p.status)" x-text="getStatusText(p.status)"></span></td>
+                                        <td class="p-4"><span x-show="p.is_public" class="text-green-600"><i data-lucide="check-circle" class="w-4 h-4"></i></span><span x-show="!p.is_public" class="text-gray-400"><i data-lucide="x-circle" class="w-4 h-4"></i></span></td>
+                                        <td class="p-4 text-sm text-gray-500" x-text="formatDate(p.created_at)"></td>
+                                        <td class="p-4"><div class="flex items-center gap-1"><button @click="editProperty(p)" class="p-1 text-blue-600 hover:bg-blue-50 rounded"><i data-lucide="edit" class="w-4 h-4"></i></button><button @click="deleteProperty(p.id)" class="p-1 text-red-600 hover:bg-red-50 rounded"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td>
+                                    </tr>
+                                </template>
+                                <template x-if="properties.length===0"><tr><td colspan="12" class="p-8 text-center text-gray-500">검색 결과가 없습니다.</td></tr></template>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-4 border-t flex items-center justify-between">
+                        <div class="text-sm text-gray-500"><span x-text="((pagination.page-1)*pagination.limit)+1"></span>-<span x-text="Math.min(pagination.page*pagination.limit,pagination.total)"></span> / <span x-text="pagination.total"></span></div>
+                        <div class="flex items-center gap-2">
+                            <button @click="pagination.page>1&&(pagination.page--,loadProperties())" :disabled="pagination.page<=1" :class="pagination.page<=1?'opacity-50 cursor-not-allowed':'hover:bg-gray-100'" class="p-2 rounded-lg"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                            <span class="px-3 py-1 bg-indigo-100 text-indigo-600 rounded-lg" x-text="pagination.page"></span>
+                            <button @click="pagination.page<Math.ceil(pagination.total/pagination.limit)&&(pagination.page++,loadProperties())" class="p-2 rounded-lg hover:bg-gray-100"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <!-- 매물 등록 -->
+        <template x-if="currentPage==='property-add'">
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white rounded-xl p-6 shadow-sm mb-6">
+                    <div class="flex items-center justify-between">
+                        <template x-for="(step,i) in ['관리정보','상세정보','사진/설명','확인']" :key="i">
+                            <div class="flex items-center">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold" :class="propertyStep>=i?'bg-indigo-600 text-white':'bg-gray-200 text-gray-500'" x-text="i+1"></div>
+                                    <span class="text-sm hidden md:block" :class="propertyStep>=i?'text-indigo-600 font-medium':'text-gray-500'" x-text="step"></span>
+                                </div>
+                                <template x-if="i<3"><div class="w-12 md:w-24 h-1 mx-2 md:mx-4 rounded" :class="propertyStep>i?'bg-indigo-600':'bg-gray-200'"></div></template>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <!-- Step 0: 관리정보 -->
+                <template x-if="propertyStep===0">
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-xl p-6 shadow-sm">
+                            <h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i data-lucide="settings-2" class="w-5 h-5 text-indigo-600"></i>관리 정보</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="col-span-2"><label class="block text-sm font-medium text-gray-700 mb-2">물건 유형 *</label><select x-model="newProperty.property_type" class="w-full px-4 py-2 border rounded-lg"><option value="">선택</option><template x-for="t in propertyTypes"><option :value="t" x-text="t"></option></template></select></div>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">의뢰수단</label><select x-model="newProperty.request_method" class="w-full px-4 py-2 border rounded-lg"><option value="">선택</option><option value="전화">전화</option><option value="방문">방문</option><option value="인터넷">인터넷</option><option value="소개">소개</option></select></div>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">담당자</label><select x-model="newProperty.manager_name" class="w-full px-4 py-2 border rounded-lg"><option value="">선택</option><option value="김훈">김훈</option></select></div>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">유입경로</label><select x-model="newProperty.source_channel" class="w-full px-4 py-2 border rounded-lg"><option value="">선택</option><option value="직접방문">직접방문</option><option value="네이버">네이버</option><option value="직방">직방</option><option value="다방">다방</option><option value="지인소개">지인소개</option></select></div>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">중요도</label><select x-model="newProperty.importance" class="w-full px-4 py-2 border rounded-lg"><option value="없음">없음</option><option value="하">하</option><option value="중">중</option><option value="상">상</option><option value="긴급">긴급</option></select></div>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">공동중개</label><div class="flex gap-4 mt-2"><label class="flex items-center gap-2"><input type="radio" x-model="newProperty.co_brokerage" :value="true" class="text-indigo-600"><span class="text-sm">동의</span></label><label class="flex items-center gap-2"><input type="radio" x-model="newProperty.co_brokerage" :value="false" class="text-indigo-600"><span class="text-sm">비동의</span></label></div></div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl p-6 shadow-sm">
+                            <h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i data-lucide="banknote" class="w-5 h-5 text-green-600"></i>거래 정보</h3>
+                            <div class="mb-6"><label class="block text-sm font-medium text-gray-700 mb-2">거래 유형 *</label><div class="flex gap-4"><template x-for="t in ['매매','전세','월세']"><label class="flex-1 cursor-pointer"><input type="radio" :value="t" x-model="newProperty.transaction_type" class="sr-only peer"><div class="p-4 border-2 rounded-xl text-center transition peer-checked:border-indigo-500 peer-checked:bg-indigo-50 hover:border-gray-300"><span class="font-medium" x-text="t"></span></div></label></template></div></div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <template x-if="newProperty.transaction_type==='매매'"><div class="col-span-2"><label class="block text-sm font-medium text-gray-700 mb-2">매매가 (만원) *</label><input type="number" x-model="newProperty.sale_price" class="w-full px-4 py-2 border rounded-lg" placeholder="0"></div></template>
+                                <template x-if="newProperty.transaction_type!=='매매'"><div><label class="block text-sm font-medium text-gray-700 mb-2">보증금 (만원) *</label><input type="number" x-model="newProperty.deposit" class="w-full px-4 py-2 border rounded-lg" placeholder="0"></div></template>
+                                <template x-if="newProperty.transaction_type==='월세'"><div><label class="block text-sm font-medium text-gray-700 mb-2">월세 (만원) *</label><input type="number" x-model="newProperty.monthly_rent" class="w-full px-4 py-2 border rounded-lg" placeholder="0"></div></template>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">권리금 (만원)</label><input type="number" x-model="newProperty.premium" class="w-full px-4 py-2 border rounded-lg" placeholder="0"></div>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">관리비 (만원)</label><input type="number" x-model="newProperty.maintenance_fee" class="w-full px-4 py-2 border rounded-lg" placeholder="0"></div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl p-6 shadow-sm">
+                            <h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i data-lucide="map-pin" class="w-5 h-5 text-red-600"></i>소재지</h3>
+                            <div class="flex gap-2 mb-4">
+                                <input type="text" x-model="newProperty.address_road" placeholder="도로명 주소" class="flex-1 px-4 py-2 border rounded-lg" readonly>
+                                <button @click="openAddressSearch()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center gap-2"><i data-lucide="search" class="w-4 h-4"></i>주소 검색</button>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div><label class="block text-xs text-gray-500 mb-1">동명칭</label><input type="text" x-model="newProperty.dong_name" placeholder="101동" class="w-full px-3 py-2 border rounded-lg"></div>
+                                <div><label class="block text-xs text-gray-500 mb-1">호명칭</label><input type="text" x-model="newProperty.ho_name" placeholder="1001호" class="w-full px-3 py-2 border rounded-lg"></div>
+                                <div class="col-span-2"><label class="block text-xs text-gray-500 mb-1">상세주소</label><input type="text" x-model="newProperty.address_detail" placeholder="상세주소" class="w-full px-3 py-2 border rounded-lg"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end"><button @click="validateStep0()&&(propertyStep=1)" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2">다음<i data-lucide="arrow-right" class="w-4 h-4"></i></button></div>
+                    </div>
+                </template>
+                <!-- Step 1: 상세정보 -->
+                <template x-if="propertyStep===1">
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-xl p-6 shadow-sm">
+                            <h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i data-lucide="ruler" class="w-5 h-5 text-blue-600"></i>면적 정보</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">전용면적 (㎡)</label><input type="number" step="0.01" x-model="newProperty.area_exclusive" class="w-full px-4 py-2 border rounded-lg" placeholder="0.00"></div>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">공급면적 (㎡)</label><input type="number" step="0.01" x-model="newProperty.area_supply" class="w-full px-4 py-2 border rounded-lg" placeholder="0.00"></div>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">해당층</label><input type="number" x-model="newProperty.floor_current" class="w-full px-4 py-2 border rounded-lg" placeholder="0"></div>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">총층</label><input type="number" x-model="newProperty.floor_total" class="w-full px-4 py-2 border rounded-lg" placeholder="0"></div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl p-6 shadow-sm">
+                            <h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i data-lucide="home" class="w-5 h-5 text-orange-600"></i>세부 정보</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">방 수</label><input type="number" x-model="newProperty.room_count" class="w-full px-4 py-2 border rounded-lg" placeholder="0"></div>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">욕실 수</label><input type="number" x-model="newProperty.bathroom_count" class="w-full px-4 py-2 border rounded-lg" placeholder="0"></div>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">방향</label><select x-model="newProperty.direction" class="w-full px-4 py-2 border rounded-lg"><option value="">선택</option><option value="동향">동향</option><option value="서향">서향</option><option value="남향">남향</option><option value="북향">북향</option><option value="남동향">남동향</option><option value="남서향">남서향</option></select></div>
+                            </div>
+                            <div class="mb-6"><label class="block text-sm font-medium text-gray-700 mb-2">입주 가능일</label><div class="flex flex-wrap gap-4 items-center"><label class="flex items-center gap-2"><input type="radio" x-model="newProperty.move_in_type" value="immediate" class="text-indigo-600"><span class="text-sm">즉시입주</span></label><label class="flex items-center gap-2"><input type="radio" x-model="newProperty.move_in_type" value="date" class="text-indigo-600"><span class="text-sm">날짜지정</span></label><template x-if="newProperty.move_in_type==='date'"><input type="date" x-model="newProperty.move_in_date" class="px-4 py-2 border rounded-lg"></template><label class="flex items-center gap-2 ml-4"><input type="checkbox" x-model="newProperty.move_in_negotiable" class="rounded text-indigo-600"><span class="text-sm">협의가능</span></label></div></div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-2">옵션</label><div class="flex flex-wrap gap-2"><template x-for="opt in availableOptions" :key="opt"><label class="cursor-pointer"><input type="checkbox" @change="toggleOption(opt)" :checked="newProperty.options.includes(opt)" class="sr-only peer"><span class="px-3 py-2 border rounded-lg text-sm transition peer-checked:border-indigo-500 peer-checked:bg-indigo-50 peer-checked:text-indigo-700 hover:border-gray-300" x-text="opt"></span></label></template></div></div>
+                        </div>
+                        <div class="flex justify-between"><button @click="propertyStep=0" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center gap-2"><i data-lucide="arrow-left" class="w-4 h-4"></i>이전</button><button @click="propertyStep=2" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2">다음<i data-lucide="arrow-right" class="w-4 h-4"></i></button></div>
+                    </div>
+                </template>
+                <!-- Step 2: 사진/설명 -->
+                <template x-if="propertyStep===2">
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-xl p-6 shadow-sm">
+                            <h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i data-lucide="image" class="w-5 h-5 text-pink-600"></i>사진 등록</h3>
+                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-indigo-500 transition cursor-pointer" @click="$refs.photoInput.click()">
+                                <input type="file" x-ref="photoInput" @change="handlePhotoUpload($event)" accept="image/*" multiple class="hidden">
+                                <i data-lucide="upload-cloud" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+                                <p class="text-gray-600">클릭하여 사진 업로드</p>
+                                <p class="text-sm text-gray-400 mt-1">JPG, PNG (최대 10MB)</p>
+                            </div>
+                            <template x-if="newProperty.photos.length>0">
+                                <div class="mt-4 grid grid-cols-4 gap-4">
+                                    <template x-for="(photo,i) in newProperty.photos" :key="i">
+                                        <div class="relative group">
+                                            <img :src="photo.url" class="w-full h-24 object-cover rounded-lg">
+                                            <button @click="removePhoto(i)" class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center"><i data-lucide="x" class="w-4 h-4"></i></button>
+                                            <template x-if="i===0"><span class="absolute bottom-1 left-1 px-2 py-0.5 bg-indigo-600 text-white text-xs rounded">대표</span></template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                        <div class="bg-white rounded-xl p-6 shadow-sm">
+                            <h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i data-lucide="file-text" class="w-5 h-5 text-green-600"></i>매물 설명</h3>
+                            <textarea x-model="newProperty.description" rows="5" class="w-full px-4 py-3 border rounded-lg resize-none" placeholder="매물에 대한 상세 설명 (800자 이내)"></textarea>
+                            <p class="text-sm text-gray-500 mt-2 text-right"><span x-text="(newProperty.description||'').length"></span>/800</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-6 shadow-sm">
+                            <h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i data-lucide="sticky-note" class="w-5 h-5 text-yellow-600"></i>내부 메모 (비공개)</h3>
+                            <textarea x-model="newProperty.note" rows="3" class="w-full px-4 py-3 border rounded-lg resize-none" placeholder="내부 참고용 메모"></textarea>
+                        </div>
+                        <div class="flex justify-between"><button @click="propertyStep=1" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center gap-2"><i data-lucide="arrow-left" class="w-4 h-4"></i>이전</button><button @click="propertyStep=3" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2">다음<i data-lucide="arrow-right" class="w-4 h-4"></i></button></div>
+                    </div>
+                </template>
+                <!-- Step 3: 확인 -->
+                <template x-if="propertyStep===3">
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-xl p-6 shadow-sm">
+                            <h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>등록 정보 확인</h3>
+                            <div class="grid grid-cols-2 gap-6">
+                                <div class="p-4 bg-gray-50 rounded-lg"><h4 class="font-medium text-gray-800 mb-3">기본 정보</h4><dl class="space-y-2 text-sm"><div class="flex justify-between"><dt class="text-gray-500">물건유형</dt><dd class="font-medium" x-text="newProperty.property_type"></dd></div><div class="flex justify-between"><dt class="text-gray-500">거래유형</dt><dd class="font-medium" x-text="newProperty.transaction_type"></dd></div><div class="flex justify-between"><dt class="text-gray-500">중요도</dt><dd><span class="px-2 py-0.5 text-xs rounded-full" :class="getImportanceClass(newProperty.importance)" x-text="newProperty.importance"></span></dd></div></dl></div>
+                                <div class="p-4 bg-gray-50 rounded-lg"><h4 class="font-medium text-gray-800 mb-3">가격 정보</h4><dl class="space-y-2 text-sm"><template x-if="newProperty.transaction_type==='매매'"><div class="flex justify-between"><dt class="text-gray-500">매매가</dt><dd class="font-medium text-indigo-600" x-text="formatNumber(newProperty.sale_price)+'만원'"></dd></div></template><template x-if="newProperty.transaction_type!=='매매'"><div class="flex justify-between"><dt class="text-gray-500">보증금</dt><dd class="font-medium text-indigo-600" x-text="formatNumber(newProperty.deposit)+'만원'"></dd></div></template><template x-if="newProperty.transaction_type==='월세'"><div class="flex justify-between"><dt class="text-gray-500">월세</dt><dd class="font-medium" x-text="formatNumber(newProperty.monthly_rent)+'만원'"></dd></div></template></dl></div>
+                                <div class="p-4 bg-gray-50 rounded-lg col-span-2"><h4 class="font-medium text-gray-800 mb-3">소재지</h4><p class="text-sm" x-text="newProperty.address_road+' '+(newProperty.address_detail||'')"></p><p class="text-sm text-gray-500" x-show="newProperty.dong_name||newProperty.ho_name"><span x-text="newProperty.dong_name"></span> <span x-text="newProperty.ho_name"></span></p></div>
+                                <div class="p-4 bg-gray-50 rounded-lg"><h4 class="font-medium text-gray-800 mb-3">세부 정보</h4><dl class="space-y-2 text-sm"><div class="flex justify-between"><dt class="text-gray-500">면적</dt><dd x-text="(newProperty.area_exclusive||0)+'㎡ / '+(newProperty.area_supply||0)+'㎡'"></dd></div><div class="flex justify-between"><dt class="text-gray-500">층수</dt><dd x-text="(newProperty.floor_current||'-')+' / '+(newProperty.floor_total||'-')+'층'"></dd></div><div class="flex justify-between"><dt class="text-gray-500">방/욕실</dt><dd x-text="(newProperty.room_count||0)+'개 / '+(newProperty.bathroom_count||0)+'개'"></dd></div></dl></div>
+                                <div class="p-4 bg-gray-50 rounded-lg"><h4 class="font-medium text-gray-800 mb-3">옵션</h4><div class="flex flex-wrap gap-1"><template x-for="opt in newProperty.options" :key="opt"><span class="px-2 py-1 bg-white border rounded text-xs" x-text="opt"></span></template><template x-if="newProperty.options.length===0"><span class="text-sm text-gray-500">선택된 옵션 없음</span></template></div></div>
+                            </div>
+                            <div class="mt-6 p-4 bg-yellow-50 rounded-lg"><label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" x-model="newProperty.is_public" class="w-5 h-5 text-indigo-600 rounded"><div><p class="font-medium">홈페이지 공개</p><p class="text-sm text-gray-500">체크하면 공개 홈페이지에 매물이 표시됩니다.</p></div></label></div>
+                        </div>
+                        <div class="flex justify-between"><button @click="propertyStep=2" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center gap-2"><i data-lucide="arrow-left" class="w-4 h-4"></i>이전</button><button @click="submitProperty()" :disabled="isSubmitting" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"><template x-if="isSubmitting"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i></template><span x-text="isSubmitting?'등록 중...':'매물 등록'"></span></button></div>
+                    </div>
+                </template>
+            </div>
+        </template>
+        <!-- 고객 목록 -->
+        <template x-if="currentPage==='customer-list'">
+            <div>
+                <div class="bg-white rounded-xl p-6 shadow-sm mb-6">
+                    <div class="flex items-center justify-between mb-4"><h3 class="font-bold text-gray-800">검색 필터</h3><button @click="resetCustomerFilters()" class="text-sm text-gray-500 hover:text-gray-700"><i data-lucide="rotate-ccw" class="w-4 h-4 inline mr-1"></i>초기화</button></div>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        <div><label class="block text-xs text-gray-500 mb-1">고객명</label><input type="text" x-model="customerFilters.name" placeholder="고객명" class="w-full px-3 py-2 border rounded-lg text-sm"></div>
+                        <div><label class="block text-xs text-gray-500 mb-1">연락처</label><input type="text" x-model="customerFilters.phone" placeholder="010-0000-0000" class="w-full px-3 py-2 border rounded-lg text-sm"></div>
+                        <div><label class="block text-xs text-gray-500 mb-1">고객등급</label><select x-model="customerFilters.customer_type" class="w-full px-3 py-2 border rounded-lg text-sm"><option value="">전체</option><option value="VIP">VIP</option><option value="일반">일반</option><option value="잠재">잠재</option></select></div>
+                        <div><label class="block text-xs text-gray-500 mb-1">고객구분</label><select x-model="customerFilters.customer_category" class="w-full px-3 py-2 border rounded-lg text-sm"><option value="">전체</option><option value="매수자">매수자</option><option value="매도자">매도자</option><option value="임대인">임대인</option><option value="임차인">임차인</option></select></div>
+                        <div class="flex items-end"><button @click="loadCustomers()" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center justify-center gap-2"><i data-lucide="search" class="w-4 h-4"></i>검색</button></div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm">
+                    <div class="p-4 border-b flex items-center justify-between"><span class="text-sm text-gray-500">총 <span class="font-bold text-indigo-600" x-text="customers.length">0</span>명</span><button @click="currentPage='customer-add'" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>고객 등록</button></div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full"><thead><tr class="text-left text-sm text-gray-500 border-b bg-gray-50"><th class="p-4"><input type="checkbox" class="rounded"></th><th class="p-4">고객명</th><th class="p-4">연락처</th><th class="p-4">이메일</th><th class="p-4">고객등급</th><th class="p-4">고객구분</th><th class="p-4">관심지역</th><th class="p-4">등록일</th><th class="p-4">관리</th></tr></thead>
+                        <tbody>
+                            <template x-for="c in customers" :key="c.id">
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4"><input type="checkbox" class="rounded"></td>
+                                    <td class="p-4 text-sm font-medium cursor-pointer hover:text-indigo-600" @click="viewCustomer(c.id)" x-text="c.name"></td>
+                                    <td class="p-4 text-sm" x-text="c.phone"></td>
+                                    <td class="p-4 text-sm text-gray-500" x-text="c.email||'-'"></td>
+                                    <td class="p-4"><span class="px-2 py-1 text-xs rounded-full" :class="c.customer_type==='VIP'?'bg-yellow-100 text-yellow-700':c.customer_type==='일반'?'bg-blue-100 text-blue-700':'bg-gray-100 text-gray-700'" x-text="c.customer_type"></span></td>
+                                    <td class="p-4 text-sm" x-text="c.customer_category||'-'"></td>
+                                    <td class="p-4 text-sm text-gray-500" x-text="c.interest_regions||'-'"></td>
+                                    <td class="p-4 text-sm text-gray-500" x-text="formatDate(c.created_at)"></td>
+                                    <td class="p-4"><div class="flex items-center gap-1"><button @click="editCustomer(c)" class="p-1 text-blue-600 hover:bg-blue-50 rounded"><i data-lucide="edit" class="w-4 h-4"></i></button><button @click="deleteCustomer(c.id)" class="p-1 text-red-600 hover:bg-red-50 rounded"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td>
+                                </tr>
+                            </template>
+                            <template x-if="customers.length===0"><tr><td colspan="9" class="p-8 text-center text-gray-500">등록된 고객이 없습니다. <button @click="currentPage='customer-add'" class="text-indigo-600 hover:underline">고객 등록하기</button></td></tr></template>
+                        </tbody></table>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- 고객 등록 -->
+        <template x-if="currentPage==='customer-add'">
+            <div class="max-w-3xl mx-auto">
+                <div class="bg-white rounded-xl p-6 shadow-sm mb-6">
+                    <h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i data-lucide="user-plus" class="w-5 h-5 text-indigo-600"></i>기본 정보</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">고객명 *</label><input type="text" x-model="newCustomer.name" class="w-full px-4 py-2 border rounded-lg" placeholder="홍길동"></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">연락처 *</label><input type="text" x-model="newCustomer.phone" class="w-full px-4 py-2 border rounded-lg" placeholder="010-0000-0000"></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">이메일</label><input type="email" x-model="newCustomer.email" class="w-full px-4 py-2 border rounded-lg" placeholder="example@email.com"></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">고객등급</label><select x-model="newCustomer.customer_type" class="w-full px-4 py-2 border rounded-lg"><option value="일반">일반</option><option value="VIP">VIP</option><option value="잠재">잠재</option></select></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">고객구분</label><select x-model="newCustomer.customer_category" class="w-full px-4 py-2 border rounded-lg"><option value="">선택</option><option value="매수자">매수자</option><option value="매도자">매도자</option><option value="임대인">임대인</option><option value="임차인">임차인</option></select></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">고객별칭</label><input type="text" x-model="newCustomer.alias" class="w-full px-4 py-2 border rounded-lg" placeholder="별칭"></div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-sm mb-6">
+                    <h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i data-lucide="map-pin" class="w-5 h-5 text-red-600"></i>관심 지역/조건</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">관심 지역</label><input type="text" x-model="newCustomer.interest_regions" class="w-full px-4 py-2 border rounded-lg" placeholder="종로구, 성북구"></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">관심 물건유형</label><input type="text" x-model="newCustomer.interest_property_types" class="w-full px-4 py-2 border rounded-lg" placeholder="아파트, 빌라"></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">예산 범위 (만원)</label><div class="flex items-center gap-2"><input type="number" x-model="newCustomer.budget_min" placeholder="최소" class="w-full px-3 py-2 border rounded-lg"><span>~</span><input type="number" x-model="newCustomer.budget_max" placeholder="최대" class="w-full px-3 py-2 border rounded-lg"></div></div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-sm mb-6">
+                    <h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i data-lucide="sticky-note" class="w-5 h-5 text-yellow-600"></i>메모</h3>
+                    <textarea x-model="newCustomer.note" rows="4" class="w-full px-4 py-3 border rounded-lg resize-none" placeholder="고객에 대한 메모"></textarea>
+                </div>
+                <div class="flex justify-between"><button @click="currentPage='customer-list'" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">취소</button><button @click="submitCustomer()" :disabled="isSubmitting" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"><template x-if="isSubmitting"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i></template><span x-text="isSubmitting?'등록 중...':'고객 등록'"></span></button></div>
+            </div>
+        </template>
+
+        <!-- 의뢰 목록 -->
+        <template x-if="currentPage==='request-list'">
+            <div>
+                <div class="bg-white rounded-xl shadow-sm">
+                    <div class="p-4 border-b flex items-center justify-between"><span class="text-sm text-gray-500">총 <span class="font-bold text-indigo-600" x-text="requests.length">0</span>건</span><button @click="currentPage='request-add'" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>의뢰 접수</button></div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full"><thead><tr class="text-left text-sm text-gray-500 border-b bg-gray-50"><th class="p-4">의뢰번호</th><th class="p-4">고객명</th><th class="p-4">물건유형</th><th class="p-4">거래유형</th><th class="p-4">예산</th><th class="p-4">중요도</th><th class="p-4">상태</th><th class="p-4">등록일</th><th class="p-4">관리</th></tr></thead>
+                        <tbody>
+                            <template x-for="r in requests" :key="r.id">
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4 text-sm font-mono text-indigo-600" x-text="r.request_number"></td>
+                                    <td class="p-4 text-sm font-medium" x-text="r.customer_name"></td>
+                                    <td class="p-4 text-sm" x-text="r.property_type"></td>
+                                    <td class="p-4 text-sm" x-text="r.transaction_type"></td>
+                                    <td class="p-4 text-sm" x-text="r.budget_range||'-'"></td>
+                                    <td class="p-4"><span class="px-2 py-1 text-xs rounded-full" :class="getImportanceClass(r.importance)" x-text="r.importance||'없음'"></span></td>
+                                    <td class="p-4"><span class="px-2 py-1 text-xs rounded-full" :class="r.status==='진행중'?'bg-green-100 text-green-700':r.status==='완료'?'bg-gray-100 text-gray-700':'bg-yellow-100 text-yellow-700'" x-text="r.status"></span></td>
+                                    <td class="p-4 text-sm text-gray-500" x-text="formatDate(r.created_at)"></td>
+                                    <td class="p-4"><div class="flex items-center gap-1"><button class="p-1 text-blue-600 hover:bg-blue-50 rounded"><i data-lucide="edit" class="w-4 h-4"></i></button><button class="p-1 text-red-600 hover:bg-red-50 rounded"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td>
+                                </tr>
+                            </template>
+                            <template x-if="requests.length===0"><tr><td colspan="9" class="p-8 text-center text-gray-500">등록된 의뢰가 없습니다.</td></tr></template>
+                        </tbody></table>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- 계약 목록 -->
+        <template x-if="currentPage==='contract-list'">
+            <div>
+                <div class="bg-white rounded-xl shadow-sm">
+                    <div class="p-4 border-b flex items-center justify-between"><span class="text-sm text-gray-500">총 <span class="font-bold text-indigo-600" x-text="contracts.length">0</span>건</span><button class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>계약서 작성</button></div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full"><thead><tr class="text-left text-sm text-gray-500 border-b bg-gray-50"><th class="p-4">계약번호</th><th class="p-4">계약유형</th><th class="p-4">매물</th><th class="p-4">매도/임대인</th><th class="p-4">매수/임차인</th><th class="p-4">계약금액</th><th class="p-4">계약일</th><th class="p-4">상태</th><th class="p-4">관리</th></tr></thead>
+                        <tbody>
+                            <template x-for="c in contracts" :key="c.id">
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4 text-sm font-mono text-indigo-600" x-text="c.contract_number"></td>
+                                    <td class="p-4 text-sm" x-text="c.contract_type"></td>
+                                    <td class="p-4 text-sm" x-text="c.property_address"></td>
+                                    <td class="p-4 text-sm" x-text="c.seller_name"></td>
+                                    <td class="p-4 text-sm" x-text="c.buyer_name"></td>
+                                    <td class="p-4 text-sm font-medium" x-text="formatNumber(c.total_price)+'만원'"></td>
+                                    <td class="p-4 text-sm text-gray-500" x-text="formatDate(c.contract_date)"></td>
+                                    <td class="p-4"><span class="px-2 py-1 text-xs rounded-full" :class="c.status==='진행중'?'bg-green-100 text-green-700':c.status==='완료'?'bg-gray-100 text-gray-700':'bg-yellow-100 text-yellow-700'" x-text="c.status"></span></td>
+                                    <td class="p-4"><div class="flex items-center gap-1"><button class="p-1 text-blue-600 hover:bg-blue-50 rounded"><i data-lucide="edit" class="w-4 h-4"></i></button><button class="p-1 text-red-600 hover:bg-red-50 rounded"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td>
+                                </tr>
+                            </template>
+                            <template x-if="contracts.length===0"><tr><td colspan="9" class="p-8 text-center text-gray-500">등록된 계약이 없습니다.</td></tr></template>
+                        </tbody></table>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- 일정 관리 -->
+        <template x-if="currentPage==='schedule'">
+            <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-bold">일정 관리</h3>
+                    <button @click="showScheduleModal=true" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>일정 추가</button>
+                </div>
+                <div class="text-center py-12 text-gray-500">
+                    <i data-lucide="calendar" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
+                    <p>캘린더 기능은 추후 업데이트 예정입니다.</p>
+                    <p class="text-sm mt-2">현재는 오늘 일정만 대시보드에서 확인할 수 있습니다.</p>
+                </div>
+            </div>
+        </template>
+
+        <!-- 설정 -->
+        <template x-if="currentPage==='settings'">
+            <div class="max-w-3xl mx-auto">
+                <div class="bg-white rounded-xl p-6 shadow-sm mb-6">
+                    <h3 class="text-lg font-bold mb-6">사무소 정보</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">사무소명</label><input type="text" value="대학로혜화72" class="w-full px-4 py-2 border rounded-lg"></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">대표자</label><input type="text" value="김훈" class="w-full px-4 py-2 border rounded-lg"></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">연락처</label><input type="text" value="02-000-0000" class="w-full px-4 py-2 border rounded-lg"></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">이메일</label><input type="email" value="contact@hyehwa72.org" class="w-full px-4 py-2 border rounded-lg"></div>
+                        <div class="col-span-2"><label class="block text-sm font-medium text-gray-700 mb-2">주소</label><input type="text" value="서울시 종로구 혜화동" class="w-full px-4 py-2 border rounded-lg"></div>
+                    </div>
+                    <div class="mt-6 flex justify-end"><button class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">저장</button></div>
+                </div>
+            </div>
+        </template>
+
+        <!-- 공적장부 조회 -->
+        <template x-if="currentPage==='public-data'">
+            <div class="max-w-3xl mx-auto">
+                <div class="bg-white rounded-xl p-6 shadow-sm">
+                    <h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i data-lucide="database" class="w-5 h-5 text-purple-600"></i>공적장부 조회</h3>
+                    <div class="flex gap-2 mb-6">
+                        <input type="text" x-model="publicDataAddress" placeholder="조회할 주소를 입력하세요" class="flex-1 px-4 py-2 border rounded-lg">
+                        <button @click="openAddressSearchForPublic()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center gap-2"><i data-lucide="search" class="w-4 h-4"></i>주소 검색</button>
+                        <button @click="searchPublicData()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2"><i data-lucide="database" class="w-4 h-4"></i>조회</button>
+                    </div>
+                    <div class="text-center py-12 text-gray-500">
+                        <i data-lucide="file-search" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
+                        <p>주소를 입력하고 조회 버튼을 클릭하세요.</p>
+                        <p class="text-sm mt-2">건축물대장, 토지대장, 등기부등본 정보를 확인할 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+    </div>
+</main>
+</div>
+'', monthly_min: '', monthly_max: '' },
+        pagination: { page: 1, limit: 20, total: 3 },
+
+        // 새 매물
+        newProperty: {
+            property_type: '', transaction_type: '월세', sale_price: '', deposit: '', monthly_rent: '', premium: '', maintenance_fee: '',
+            address_road: '', address_detail: '', dong_name: '', ho_name: '', latitude: '', longitude: '',
+            area_exclusive: '', area_supply: '', floor_current: '', floor_total: '', room_count: '', bathroom_count: '', direction: '',
+            move_in_type: 'immediate', move_in_date: '', move_in_negotiable: false,
+            options: [], description: '', note: '', photos: [],
+            importance: '없음', manager_name: '', request_method: '', source_channel: '', co_brokerage: true, is_public: false
+        },
+        publicDataResult: {},
+
+        // 고객
+        customers: [
+            { id: '1', name: '홍길동', phone: '010-1234-5678', email: 'hong@email.com', customer_type: 'VIP', customer_category: '매수자', interest_regions: '종로구', created_at: '2026-01-05' },
+            { id: '2', name: '김철수', phone: '010-2345-6789', email: '', customer_type: '일반', customer_category: '임차인', interest_regions: '성북구', created_at: '2026-01-03' },
+        ],
+        customerFilters: { name: '', phone: '', customer_type: '', customer_category: '' },
+        newCustomer: { name: '', phone: '', email: '', customer_type: '일반', customer_category: '', alias: '', interest_regions: '', interest_property_types: '', budget_min: '', budget_max: '', note: '' },
+
+        // 의뢰
+        requests: [
+            { id: '1', request_number: 'R202601-0001', customer_name: '홍길동', property_type: '아파트', transaction_type: '매매', budget_range: '3억~5억', importance: '상', status: '진행중', created_at: '2026-01-05' },
+        ],
+
+        // 계약
+        contracts: [
+            { id: '1', contract_number: 'C202601-0001', contract_type: '전세', property_address: '종로구 혜화동 123', seller_name: '이영희', buyer_name: '홍길동', total_price: 15000, contract_date: '2026-01-02', status: '진행중' },
+        ],
+
+        // 페이지 타이틀
+        get pageTitle() {
+            const titles = {
+                'dashboard': '대시보드', 'property-list': '매물 목록', 'property-add': '매물 등록', 'property-map': '매물 지도',
+                'customer-list': '고객 목록', 'customer-add': '고객 등록', 'request-list': '의뢰 관리', 'request-add': '의뢰 접수',
+                'contract-list': '계약 목록', 'schedule': '일정 관리', 'settings': '설정',
+                'ledger-list': '원장 관리', 'public-data': '공적장부 조회'
+            };
+            return titles[this.currentPage] || '관리자';
+        },
+        get pageDesc() {
+            const descs = {
+                'dashboard': '오늘의 현황을 한눈에 확인하세요', 'property-list': '등록된 매물을 관리합니다', 'property-add': '새로운 매물을 등록합니다',
+                'customer-list': '등록된 고객을 관리합니다', 'customer-add': '새로운 고객을 등록합니다', 'request-list': '고객 의뢰를 관리합니다',
+                'contract-list': '계약 현황을 관리합니다', 'schedule': '일정을 관리합니다', 'settings': '시스템 설정',
+                'public-data': '건축물대장, 토지대장, 등기부등본 조회'
+            };
+            return descs[this.currentPage] || '';
+        },
+
+        // 초기화
+        init() {
+            this.properties = [...this.recentProperties];
+            this.$nextTick(() => { lucide.createIcons(); });
+            this.$watch('currentPage', () => { this.$nextTick(() => lucide.createIcons()); });
+        },
+
+        // 유틸
+        formatNumber(num) { return num ? Number(num).toLocaleString() : '0'; },
+        formatDate(date) { if (!date) return '-'; return new Date(date).toLocaleDateString('ko-KR'); },
+        formatPrice(p) {
+            if (p.transaction_type === '매매') return this.formatNumber(p.sale_price) + '만원';
+            if (p.transaction_type === '전세') return this.formatNumber(p.deposit) + '만원';
+            return this.formatNumber(p.deposit) + '/' + this.formatNumber(p.monthly_rent) + '만원';
+        },
+        getImportanceClass(imp) {
+            const classes = { '긴급': 'bg-red-500 text-white', '상': 'bg-orange-500 text-white', '중': 'bg-yellow-500 text-white', '하': 'bg-green-500 text-white', '없음': 'bg-gray-200 text-gray-600' };
+            return classes[imp] || classes['없음'];
+        },
+        getStatusClass(status) {
+            const classes = { 'active': 'bg-green-100 text-green-700', 'reserved': 'bg-yellow-100 text-yellow-700', 'contracted': 'bg-purple-100 text-purple-700', 'hidden': 'bg-gray-100 text-gray-700' };
+            return classes[status] || 'bg-gray-100 text-gray-700';
+        },
+        getStatusText(status) {
+            const texts = { 'active': '활성', 'reserved': '예약', 'contracted': '계약완료', 'hidden': '숨김' };
+            return texts[status] || status;
+        },
+        showToast(message, type = 'info') {
+            this.toast = { show: true, message, type };
+            setTimeout(() => { this.toast.show = false; }, 3000);
+        },
+
+        // 필터
+        resetFilters() { this.filters = { property_type: '', transaction_type: '', importance: '', status: '', property_number: '', keyword: '', price_min: '', price_max: '', monthly_min: '', monthly_max: '' }; this.loadProperties(); },
+        resetCustomerFilters() { this.customerFilters = { name: '', phone: '', customer_type: '', customer_category: '' }; },
+
+        // 매물
+        loadProperties() { this.properties = [...this.recentProperties]; this.pagination.total = this.properties.length; },
+        viewProperty(id) { this.showToast('매물 상세 보기: ' + id); },
+        editProperty(p) { this.newProperty = { ...p }; this.propertyStep = 0; this.currentPage = 'property-add'; },
+        deleteProperty(id) { if (confirm('정말 삭제하시겠습니까?')) { this.properties = this.properties.filter(p => p.id !== id); this.showToast('매물이 삭제되었습니다.', 'success'); } },
+        validateStep0() {
+            if (!this.newProperty.property_type) { this.showToast('물건 유형을 선택하세요.', 'error'); return false; }
+            if (!this.newProperty.transaction_type) { this.showToast('거래 유형을 선택하세요.', 'error'); return false; }
+            if (!this.newProperty.address_road) { this.showToast('주소를 검색하세요.', 'error'); return false; }
+            return true;
+        },
+        toggleOption(opt) {
+            const idx = this.newProperty.options.indexOf(opt);
+            if (idx > -1) this.newProperty.options.splice(idx, 1);
+            else this.newProperty.options.push(opt);
+        },
+        handlePhotoUpload(e) {
+            const files = e.target.files;
+            for (let f of files) {
+                if (f.size > 10 * 1024 * 1024) { this.showToast('파일 크기는 10MB 이하여야 합니다.', 'error'); continue; }
+                const reader = new FileReader();
+                reader.onload = (e) => { this.newProperty.photos.push({ url: e.target.result, name: f.name }); };
+                reader.readAsDataURL(f);
+            }
+        },
+        removePhoto(idx) { this.newProperty.photos.splice(idx, 1); },
+        submitProperty() {
+            this.isSubmitting = true;
+            setTimeout(() => {
+                const newId = Date.now().toString();
+                const propertyNumber = 'P' + new Date().toISOString().slice(0, 7).replace('-', '') + '-' + String(this.properties.length + 1).padStart(4, '0');
+                this.properties.unshift({ ...this.newProperty, id: newId, property_number: propertyNumber, address: this.newProperty.address_road, status: 'active', created_at: new Date().toISOString().slice(0, 10) });
+                this.recentProperties = this.properties.slice(0, 5);
+                this.stats.totalProperties++;
+                this.stats.activeProperties++;
+                this.isSubmitting = false;
+                this.showToast('매물이 등록되었습니다.', 'success');
+                this.resetNewProperty();
+                this.propertyStep = 0;
+                this.currentPage = 'property-list';
+            }, 1000);
+        },
+        resetNewProperty() {
+            this.newProperty = { property_type: '', transaction_type: '월세', sale_price: '', deposit: '', monthly_rent: '', premium: '', maintenance_fee: '', address_road: '', address_detail: '', dong_name: '', ho_name: '', latitude: '', longitude: '', area_exclusive: '', area_supply: '', floor_current: '', floor_total: '', room_count: '', bathroom_count: '', direction: '', move_in_type: 'immediate', move_in_date: '', move_in_negotiable: false, options: [], description: '', note: '', photos: [], importance: '없음', manager_name: '', request_method: '', source_channel: '', co_brokerage: true, is_public: false };
+        },
+
+        // 고객
+        loadCustomers() { /* API 호출 */ },
+        viewCustomer(id) { this.showToast('고객 상세 보기: ' + id); },
+        editCustomer(c) { this.newCustomer = { ...c }; this.currentPage = 'customer-add'; },
+        deleteCustomer(id) { if (confirm('정말 삭제하시겠습니까?')) { this.customers = this.customers.filter(c => c.id !== id); this.showToast('고객이 삭제되었습니다.', 'success'); } },
+        submitCustomer() {
+            if (!this.newCustomer.name || !this.newCustomer.phone) { this.showToast('고객명과 연락처는 필수입니다.', 'error'); return; }
+            this.isSubmitting = true;
+            setTimeout(() => {
+                this.customers.unshift({ ...this.newCustomer, id: Date.now().toString(), created_at: new Date().toISOString().slice(0, 10) });
+                this.isSubmitting = false;
+                this.showToast('고객이 등록되었습니다.', 'success');
+                this.newCustomer = { name: '', phone: '', email: '', customer_type: '일반', customer_category: '', alias: '', interest_regions: '', interest_property_types: '', budget_min: '', budget_max: '', note: '' };
+                this.currentPage = 'customer-list';
+            }, 1000);
+        },
+
+        // 주소 검색
+        openAddressSearch() {
+            this.showAddressModal = true;
+            this.$nextTick(() => {
+                new daum.Postcode({
+                    oncomplete: (data) => {
+                        this.newProperty.address_road = data.roadAddress || data.jibunAddress;
+                        this.showAddressModal = false;
+                    },
+                    width: '100%', height: '100%'
+                }).embed(document.getElementById('daumPostcode'));
+            });
+        },
+        openAddressSearchForPublic() {
+            new daum.Postcode({
+                oncomplete: (data) => { this.publicDataAddress = data.roadAddress || data.jibunAddress; }
+            }).open();
+        },
+        fetchPublicData() { this.showToast('공적장부 조회 기능은 추후 업데이트됩니다.'); },
+        searchPublicData() { this.showToast('공적장부 조회 기능은 추후 업데이트됩니다.'); }
+    };
+}
+</script>
+</body>
+</html>
